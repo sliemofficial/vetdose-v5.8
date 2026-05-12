@@ -24,276 +24,96 @@
     --mono: 'DM Mono', monospace;
     --sans: 'Syne', sans-serif;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    padding-bottom: 90px;
-  }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; padding-bottom: 90px; }
 
   /* HEADER */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+  .logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
   .header-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
   .header-sub { font-size: 11px; color: var(--muted); font-family: var(--mono); }
-
-  /* TABS */
-  .tabs {
-    display: flex;
-    gap: 8px;
-    padding: 16px 20px 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .tab {
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-  }
-  .tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-  .tab:not(.active):hover { border-color: var(--accent); color: var(--accent); }
 
   /* PAGES */
   .page { display: none; padding: 20px; }
   .page.active { display: block; }
 
   /* CARDS */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .card-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
 
   /* INPUTS */
   .field { margin-bottom: 14px; }
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
-  }
-  input, select, textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 15px;
-    padding: 11px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none;
-  }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.5px; }
+  input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: 15px; padding: 11px 14px; outline: none; transition: border-color 0.2s; appearance: none; }
   input:focus, select:focus { border-color: var(--accent); }
   input::placeholder { color: var(--muted); }
   select option { background: var(--surface2); }
 
   /* SPECIES TOGGLE */
-  .species-toggle {
-    display: flex; gap: 8px;
-  }
-  .species-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    color: var(--muted);
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
+  .species-toggle { display: flex; gap: 8px; }
+  .species-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
   .species-btn.dog.active { background: rgba(74,159,240,0.15); border-color: var(--dog); color: var(--dog); }
   .species-btn.cat.active { background: rgba(192,132,252,0.15); border-color: var(--cat); color: var(--cat); }
   .species-btn.both.active { background: rgba(74,240,176,0.15); border-color: var(--both); color: var(--both); }
 
   /* BUTTONS */
-  .btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 10px;
-    border: none;
-    font-family: var(--sans);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
+  .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-family: var(--sans); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
   .btn-primary { background: var(--accent); color: var(--bg); }
   .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
   .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-danger { background: rgba(240,74,106,0.15); color: var(--danger); border: 1px solid var(--danger); }
   .btn-sm { padding: 8px 14px; font-size: 13px; width: auto; }
+  .btn-xs { padding: 5px 10px; font-size: 11px; width: auto; border-radius: 6px; }
 
   /* RESULT BOX */
-  .result-box {
-    background: linear-gradient(135deg, rgba(74,240,176,0.1), rgba(74,159,240,0.1));
-    border: 1px solid var(--accent);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-top: 16px;
-    display: none;
-  }
+  .result-box { background: linear-gradient(135deg, rgba(74,240,176,0.1), rgba(74,159,240,0.1)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 20px; margin-top: 16px; display: none; }
   .result-box.show { display: block; }
-  .result-main {
-    font-size: 36px;
-    font-weight: 800;
-    color: var(--accent);
-    font-family: var(--mono);
-    letter-spacing: -1px;
-  }
-  .result-sub {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--accent2);
-    font-family: var(--mono);
-    margin-top: 4px;
-  }
-  .result-meta {
-    margin-top: 12px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .result-meta-item {
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 10px 12px;
-  }
+  .result-main { font-size: 36px; font-weight: 800; color: var(--accent); font-family: var(--mono); letter-spacing: -1px; }
+  .result-sub { font-size: 20px; font-weight: 600; color: var(--accent2); font-family: var(--mono); margin-top: 4px; }
+  .result-meta { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .result-meta-item { background: var(--surface); border-radius: 8px; padding: 10px 12px; }
   .result-meta-item .label { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
   .result-meta-item .val { font-size: 14px; font-weight: 600; font-family: var(--mono); margin-top: 2px; }
-  .route-badge {
-    display: inline-block;
-    margin-top: 12px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
+  .route-badge { display: inline-block; margin-top: 12px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
 
   /* MED LIST */
-  .search-bar {
-    position: relative;
-    margin-bottom: 16px;
-  }
+  .search-bar { position: relative; margin-bottom: 16px; }
   .search-bar input { padding-left: 40px; }
-  .search-icon {
-    position: absolute;
-    left: 13px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    font-size: 16px;
-    pointer-events: none;
-  }
-
-  .med-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .med-item:hover { border-color: var(--accent); }
+  .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; pointer-events: none; }
+  .med-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 12px; transition: all 0.2s; }
+  .med-item.clickable { cursor: pointer; }
+  .med-item.clickable:hover { border-color: var(--accent); }
   .med-item.selected { border-color: var(--accent); background: rgba(74,240,176,0.07); }
-
-  .species-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .species-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
   .species-dot.dog { background: var(--dog); }
   .species-dot.cat { background: var(--cat); }
   .species-dot.both { background: var(--both); }
-
-  .med-name { font-size: 15px; font-weight: 700; flex: 1; }
-  .med-meta { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+  .med-name { font-size: 15px; font-weight: 700; }
   .med-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-  .tag {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.5px;
-  }
+  .tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.5px; }
   .tag.dog { background: rgba(74,159,240,0.15); color: var(--dog); }
   .tag.cat { background: rgba(192,132,252,0.15); color: var(--cat); }
   .tag.both { background: rgba(74,240,176,0.15); color: var(--both); }
   .tag.route { background: rgba(107,115,153,0.2); color: var(--muted); }
-
-  .med-actions { display: flex; gap: 8px; }
-  .icon-btn {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    color: var(--muted);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-  }
+  .med-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.2s; }
   .icon-btn:hover.del { border-color: var(--danger); color: var(--danger); background: rgba(240,74,106,0.1); }
   .icon-btn:hover.edit { border-color: var(--accent2); color: var(--accent2); background: rgba(74,159,240,0.1); }
 
+  /* ROUTE ROWS inside med list */
+  .route-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .route-row { font-size: 11px; font-family: var(--mono); color: var(--muted); background: var(--surface2); border-radius: 6px; padding: 4px 8px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .route-row .rr-label { color: var(--text); font-weight: 500; min-width: 30px; }
+  .route-row .rr-sp { font-size: 10px; padding: 1px 6px; border-radius: 10px; }
+  .route-row .rr-sp.dog { background: rgba(74,159,240,0.15); color: var(--dog); }
+  .route-row .rr-sp.cat { background: rgba(192,132,252,0.15); color: var(--cat); }
+  .route-row .rr-sp.both { background: rgba(74,240,176,0.15); color: var(--both); }
+
+  /* CONTRAINDICATION */
+  .contra-box { background: rgba(240,74,106,0.08); border: 1px solid rgba(240,74,106,0.4); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #f8818f; margin-top: 8px; display: flex; gap: 6px; align-items: flex-start; }
+
   /* HISTORY */
-  .history-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-  }
+  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
   .history-header { display: flex; justify-content: space-between; align-items: flex-start; }
   .history-drug { font-size: 15px; font-weight: 700; }
   .history-time { font-size: 11px; color: var(--muted); font-family: var(--mono); }
@@ -302,168 +122,85 @@
   .history-detail { font-size: 12px; color: var(--muted); margin-top: 6px; }
 
   /* EMPTY STATE */
-  .empty {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-  }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
   .empty-icon { font-size: 40px; margin-bottom: 12px; }
   .empty-text { font-size: 14px; }
 
   /* MODAL */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 200;
-    display: none;
-    align-items: flex-end;
-    padding: 0;
-  }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; align-items: flex-end; }
   .modal-overlay.show { display: flex; }
-  .modal {
-    background: var(--surface);
-    border-radius: 20px 20px 0 0;
-    border-top: 1px solid var(--border);
-    padding: 24px 20px 40px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-  }
+  .modal { background: var(--surface); border-radius: 20px 20px 0 0; border-top: 1px solid var(--border); padding: 24px 20px 40px; width: 100%; max-height: 92vh; overflow-y: auto; animation: slideUp 0.3s ease; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .modal-handle {
-    width: 40px; height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin: 0 auto 20px;
-  }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
   .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
 
+  /* ROUTE ENTRY BLOCKS inside modal */
+  .route-entry { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; position: relative; }
+  .route-entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .route-entry-title { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .route-entry-remove { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
+  .route-entry .field { margin-bottom: 10px; }
+  .route-entry .field:last-child { margin-bottom: 0; }
+  .route-entry input, .route-entry select { font-size: 14px; padding: 9px 12px; }
+
+  /* Case rows inside route entry */
+  .case-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+  .case-row input, .case-row select { font-size: 13px; padding: 8px 10px; }
+  .case-row .case-remove { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 16px; padding: 0 4px; align-self: center; }
+
   /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 100px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 999;
-    opacity: 0;
-    transition: all 0.3s;
-    white-space: nowrap;
-  }
+  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: all 0.3s; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--accent); color: var(--accent); }
   .toast.error { border-color: var(--danger); color: var(--danger); }
 
   /* NAV */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    display: flex;
-    padding: 8px 0 20px;
-    z-index: 100;
-  }
-  .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px;
-    cursor: pointer;
-    color: var(--muted);
-    transition: color 0.2s;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: flex; padding: 8px 0 20px; z-index: 100; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; cursor: pointer; color: var(--muted); transition: color 0.2s; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
   .nav-item.active { color: var(--accent); }
   .nav-icon { font-size: 20px; }
 
   .divider { height: 1px; background: var(--border); margin: 16px 0; }
-
-  /* STATS */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .stat-card {
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 14px;
-    border: 1px solid var(--border);
-  }
+  .stat-card { background: var(--surface2); border-radius: 10px; padding: 14px; border: 1px solid var(--border); }
   .stat-val { font-size: 28px; font-weight: 800; font-family: var(--mono); color: var(--accent); }
   .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; letter-spacing: 0.5px; }
-
-  /* WARNING */
-  .warning-box {
-    background: rgba(240,168,74,0.1);
-    border: 1px solid var(--warn);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 12px;
-    color: var(--warn);
-    margin-top: 12px;
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
+  .warning-box { background: rgba(240,168,74,0.1); border: 1px solid var(--warn); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: var(--warn); margin-top: 12px; display: flex; gap: 8px; align-items: flex-start; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .section-title { font-size: 16px; font-weight: 800; }
-
-  /* unit toggle */
-  .unit-toggle {
-    display: flex;
-    gap: 0;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 14px;
-  }
-  .unit-btn {
-    flex: 1;
-    padding: 9px;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  .unit-toggle { display: flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 14px; }
+  .unit-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
   .unit-btn.active { background: var(--accent); color: var(--bg); }
-
-  .calc-step {
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-top: 8px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-  }
+  .calc-step { background: var(--surface2); border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
   .calc-step span { color: var(--text); }
+
+  /* FILTER TABS */
+  .filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .tab:not(.active):hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ROUTE SELECTOR in calc page */
+  .route-selector { display: flex; flex-direction: column; gap: 8px; }
+  .route-option { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.2s; }
+  .route-option:hover { border-color: var(--accent2); }
+  .route-option.selected { border-color: var(--accent); background: rgba(74,240,176,0.08); }
+  .route-option-top { display: flex; justify-content: space-between; align-items: center; }
+  .route-option-name { font-size: 14px; font-weight: 700; }
+  .route-option-dose { font-size: 13px; font-family: var(--mono); color: var(--accent); }
+  .route-option-cases { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .case-chip { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all 0.2s; }
+  .case-chip.selected { background: rgba(74,159,240,0.2); border-color: var(--accent2); color: var(--accent2); }
+
+  /* CONC selector */
+  .conc-selector { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .conc-chip { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); cursor: pointer; font-family: var(--mono); transition: all 0.2s; }
+  .conc-chip.selected { background: rgba(74,240,176,0.15); border-color: var(--accent); color: var(--accent); }
+
+  /* add-route btn */
+  .add-route-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1px dashed var(--border); background: transparent; color: var(--muted); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+  .add-route-btn:hover { border-color: var(--accent); color: var(--accent); }
 </style>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f1117">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="VetDose">
-<link rel="apple-touch-icon" href="icon-192.png">
-
 </head>
 <body>
 
@@ -471,7 +208,7 @@
   <div class="logo">🐾</div>
   <div>
     <div class="header-title">VetDose</div>
-    <div class="header-sub">Dosage Calculator</div>
+    <div class="header-sub">Dosage Calculator v2.0</div>
   </div>
 </div>
 
@@ -490,9 +227,27 @@
     <div class="card-title">Patient Details</div>
     <div id="selected-med-info" style="margin-bottom:16px"></div>
 
+    <!-- Contraindications -->
+    <div id="calc-contras" style="display:none"></div>
+
     <div class="field">
       <label>ANIMAL TYPE</label>
       <div class="species-toggle" id="calc-species-toggle"></div>
+    </div>
+
+    <div class="field" id="route-field" style="display:none">
+      <label>ROUTE OF ADMINISTRATION</label>
+      <div class="route-selector" id="route-selector"></div>
+    </div>
+
+    <div class="field" id="case-field" style="display:none">
+      <label>DOSING CASE / INDICATION</label>
+      <div class="route-option-cases" id="case-selector" style="gap:8px"></div>
+    </div>
+
+    <div class="field" id="conc-field" style="display:none">
+      <label>CONCENTRATION (mg/ml)</label>
+      <div id="conc-selector-wrap"></div>
     </div>
 
     <div class="field">
@@ -515,30 +270,18 @@
       <div class="result-main" id="res-dose">—</div>
       <div class="result-sub" id="res-vol">—</div>
       <div class="result-meta">
-        <div class="result-meta-item">
-          <div class="label">Drug</div>
-          <div class="val" id="res-drug">—</div>
-        </div>
-        <div class="result-meta-item">
-          <div class="label">Species</div>
-          <div class="val" id="res-species">—</div>
-        </div>
-        <div class="result-meta-item">
-          <div class="label">Weight</div>
-          <div class="val" id="res-weight">—</div>
-        </div>
-        <div class="result-meta-item">
-          <div class="label">Dose/kg</div>
-          <div class="val" id="res-dosekg">—</div>
-        </div>
+        <div class="result-meta-item"><div class="label">Drug</div><div class="val" id="res-drug">—</div></div>
+        <div class="result-meta-item"><div class="label">Species</div><div class="val" id="res-species">—</div></div>
+        <div class="result-meta-item"><div class="label">Weight</div><div class="val" id="res-weight">—</div></div>
+        <div class="result-meta-item"><div class="label">Dose/kg</div><div class="val" id="res-dosekg">—</div></div>
       </div>
       <div id="res-route-badge"></div>
+      <div id="res-case-label" style="margin-top:6px;font-size:12px;color:var(--warn)"></div>
       <div id="res-calc-steps"></div>
       <div class="warning-box" style="margin-top:12px">
         <span>⚠️</span>
         <span>Always verify dosages. This tool is a clinical aid — not a replacement for professional judgment.</span>
       </div>
-      <button class="btn btn-secondary" style="margin-top:12px" onclick="saveToHistory()">💾 Save to History</button>
     </div>
   </div>
 </div>
@@ -549,19 +292,16 @@
     <div class="section-title">Medications</div>
     <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Add</button>
   </div>
-
   <div class="search-bar">
     <span class="search-icon">🔍</span>
     <input type="text" id="meds-search" placeholder="Search..." oninput="renderMedList()">
   </div>
-
-  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+  <div class="filter-tabs">
     <button class="tab active" id="filter-all" onclick="setFilter('all')">All</button>
     <button class="tab" id="filter-dog" onclick="setFilter('dog')">🐶 Dogs</button>
     <button class="tab" id="filter-cat" onclick="setFilter('cat')">🐱 Cats</button>
     <button class="tab" id="filter-both" onclick="setFilter('both')">Both</button>
   </div>
-
   <div id="med-list"></div>
 </div>
 
@@ -579,56 +319,34 @@
   <div class="card">
     <div class="card-title">Database</div>
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-val" id="stat-meds">0</div>
-        <div class="stat-label">Medications</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="stat-calcs">0</div>
-        <div class="stat-label">Calculations</div>
-      </div>
+      <div class="stat-card"><div class="stat-val" id="stat-meds">0</div><div class="stat-label">Medications</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-calcs">0</div><div class="stat-label">Calculations</div></div>
     </div>
     <button class="btn btn-secondary" style="margin-bottom:10px" onclick="exportData()">📤 Export Backup (JSON)</button>
-    <label class="btn btn-secondary" style="display:block;text-align:center;cursor:pointer">
+    <label class="btn btn-secondary" style="display:block;text-align:center;cursor:pointer;margin-bottom:10px">
       📥 Import Backup (JSON)
       <input type="file" accept=".json" style="display:none" onchange="importData(event)">
     </label>
+    <button class="btn btn-secondary" onclick="runMigration(true)">🔄 Migrate Old Data Format</button>
   </div>
-
   <div class="card">
     <div class="card-title">Preload Sample Meds</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Load a set of common veterinary medications to get started quickly.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Load common veterinary medications to get started quickly.</p>
     <button class="btn btn-secondary" onclick="loadSamples()">🧪 Load Sample Medications</button>
   </div>
-
   <div class="card">
     <div class="card-title">Danger Zone</div>
     <button class="btn btn-danger" onclick="clearAll()">🗑️ Clear All Data</button>
   </div>
-
-  <div style="text-align:center;color:var(--muted);font-size:11px;font-family:var(--mono);padding:20px 0">
-    VetDose v1.0 · Add to Home Screen for app experience
-  </div>
+  <div style="text-align:center;color:var(--muted);font-size:11px;font-family:var(--mono);padding:20px 0">VetDose v2.0 · Add to Home Screen for app experience</div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <div class="nav-item active" id="nav-calc" onclick="showPage('calc')">
-    <div class="nav-icon">💊</div>
-    <span>Calculate</span>
-  </div>
-  <div class="nav-item" id="nav-meds" onclick="showPage('meds')">
-    <div class="nav-icon">🗂️</div>
-    <span>Medications</span>
-  </div>
-  <div class="nav-item" id="nav-history" onclick="showPage('history')">
-    <div class="nav-icon">📋</div>
-    <span>History</span>
-  </div>
-  <div class="nav-item" id="nav-settings" onclick="showPage('settings')">
-    <div class="nav-icon">⚙️</div>
-    <span>Settings</span>
-  </div>
+  <div class="nav-item active" id="nav-calc" onclick="showPage('calc')"><div class="nav-icon">💊</div><span>Calculate</span></div>
+  <div class="nav-item" id="nav-meds" onclick="showPage('meds')"><div class="nav-icon">🗂️</div><span>Medications</span></div>
+  <div class="nav-item" id="nav-history" onclick="showPage('history')"><div class="nav-icon">📋</div><span>History</span></div>
+  <div class="nav-item" id="nav-settings" onclick="showPage('settings')"><div class="nav-icon">⚙️</div><span>Settings</span></div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -641,36 +359,29 @@
       <label>MEDICATION NAME</label>
       <input type="text" id="m-name" placeholder="e.g. Amoxicillin">
     </div>
+
     <div class="field">
-      <label>SPECIES</label>
-      <div class="species-toggle">
-        <button class="species-btn dog" onclick="selectModalSpecies('dog')">🐶 Dog</button>
-        <button class="species-btn cat" onclick="selectModalSpecies('cat')">🐱 Cat</button>
-        <button class="species-btn both" onclick="selectModalSpecies('both')">Both</button>
-      </div>
+      <label>CONTRAINDICATIONS (optional)</label>
+      <input type="text" id="m-contra" placeholder="e.g. Renal failure, pregnancy">
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Comma-separated. Will show as a warning during dosing.</div>
     </div>
+
     <div class="field">
-      <label>DOSE (mg/kg)</label>
-      <input type="number" id="m-dose" placeholder="e.g. 10" step="0.01" min="0">
+      <label>GENERAL NOTES (optional)</label>
+      <input type="text" id="m-notes" placeholder="e.g. Monitor liver enzymes">
     </div>
-    <div class="field">
-      <label>CONCENTRATION (mg/ml)</label>
-      <input type="number" id="m-conc" placeholder="e.g. 50" step="0.01" min="0">
+
+    <div class="divider"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--text)">Routes &amp; Dosing</div>
+      <button class="btn btn-sm btn-secondary" onclick="addRouteEntry()">+ Add Route</button>
     </div>
-    <div class="field">
-      <label>ROUTE OF ADMINISTRATION</label>
-      <select id="m-route">
-        <option value="PO">PO – Oral</option>
-        <option value="IV">IV – Intravenous</option>
-        <option value="IM">IM – Intramuscular</option>
-        <option value="SC">SC – Subcutaneous</option>
-        <option value="TOP">TOP – Topical</option>
-        <option value="IN">IN – Intranasal</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>NOTES (optional)</label>
-      <input type="text" id="m-notes" placeholder="e.g. Give with food">
+
+    <div id="route-entries"></div>
+
+    <div style="margin-top:4px;margin-bottom:20px">
+      <button class="add-route-btn" onclick="addRouteEntry()">＋ Add another route</button>
     </div>
 
     <button class="btn btn-primary" style="margin-bottom:10px" onclick="saveMed()">Save Medication</button>
@@ -682,15 +393,81 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── STATE ───────────────────────────────────────────────
-let meds = JSON.parse(localStorage.getItem('vetdose_meds') || '[]');
-let history = JSON.parse(localStorage.getItem('vetdose_history') || '[]');
+// ═══════════════════════════════════════════════════════════
+// DATA SCHEMA v2
+// Medication: { id, name, contraindications: [], notes, routes: [RouteEntry] }
+// RouteEntry: { id, route, species, concentrations: [number], cases: [CaseEntry] }
+// CaseEntry: { id, label, dose }  (label optional = "Standard")
+// ═══════════════════════════════════════════════════════════
+
+const SCHEMA_VERSION = 2;
+const STORAGE_KEYS = { meds: 'vetdose_meds_v2', history: 'vetdose_history', version: 'vetdose_schema_ver' };
+
+let meds = [];
+let calcHistory = [];
 let selectedMed = null;
+let selectedRoute = null;
+let selectedCase = null;
+let selectedConc = null;
 let calcSpecies = null;
 let weightUnit = 'kg';
 let medFilter = 'all';
 let editingId = null;
-let modalSpecies = 'dog';
+
+// ─── SCHEMA MIGRATION ────────────────────────────────────
+function migrateV1ToV2(oldMeds) {
+  return oldMeds.map(m => {
+    // Already v2 shape
+    if (m.routes && Array.isArray(m.routes)) return m;
+    // Migrate from flat v1 shape
+    return {
+      id: m.id || Date.now().toString() + Math.random(),
+      name: m.name,
+      contraindications: m.contraindications || [],
+      notes: m.notes || '',
+      routes: [{
+        id: 'r_' + (m.id || Date.now()),
+        route: m.route || 'PO',
+        species: m.species || 'both',
+        concentrations: [parseFloat(m.conc) || 0].filter(Boolean),
+        cases: [{ id: 'c_' + (m.id || Date.now()), label: 'Standard', dose: parseFloat(m.dose) || 0 }]
+      }]
+    };
+  });
+}
+
+function runMigration(manual = false) {
+  const ver = parseInt(localStorage.getItem(STORAGE_KEYS.version) || '1');
+  const oldMeds = JSON.parse(localStorage.getItem('vetdose_meds') || '[]');
+  if (ver < 2 && oldMeds.length) {
+    meds = migrateV1ToV2(oldMeds);
+    save();
+    if (manual) toast('✅ Old data migrated successfully');
+  } else if (manual) {
+    toast('Nothing to migrate');
+  }
+}
+
+function loadData() {
+  const ver = parseInt(localStorage.getItem(STORAGE_KEYS.version) || '1');
+  if (ver < SCHEMA_VERSION) {
+    runMigration(false);
+  }
+  const stored = localStorage.getItem(STORAGE_KEYS.meds);
+  if (stored) {
+    try { meds = JSON.parse(stored); } catch(e) { meds = []; }
+  }
+  const storedH = localStorage.getItem(STORAGE_KEYS.history);
+  if (storedH) {
+    try { calcHistory = JSON.parse(storedH); } catch(e) { calcHistory = []; }
+  }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEYS.meds, JSON.stringify(meds));
+  localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(calcHistory));
+  localStorage.setItem(STORAGE_KEYS.version, SCHEMA_VERSION.toString());
+}
 
 // ─── ROUTING ─────────────────────────────────────────────
 function showPage(name) {
@@ -704,12 +481,6 @@ function showPage(name) {
   if (name === 'settings') updateStats();
 }
 
-// ─── SAVE ─────────────────────────────────────────────────
-function save() {
-  localStorage.setItem('vetdose_meds', JSON.stringify(meds));
-  localStorage.setItem('vetdose_history', JSON.stringify(history));
-}
-
 // ─── TOAST ───────────────────────────────────────────────
 function toast(msg, type = 'success') {
   const t = document.getElementById('toast');
@@ -718,63 +489,199 @@ function toast(msg, type = 'success') {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
+// ─── ROUTE COLORS ────────────────────────────────────────
+const routeColors = { IV:'#f04a6a', IM:'#f0a84a', SC:'#4af0b0', PO:'#4a9ff0', TOP:'#c084fc', IN:'#60d9fa', IO:'#ff9f43', EP:'#ee5a24' };
+const routeLabels = { PO:'PO – Oral', IV:'IV – Intravenous', IM:'IM – Intramuscular', SC:'SC – Subcutaneous', TOP:'TOP – Topical', IN:'IN – Intranasal', IO:'IO – Intraosseous', EP:'EP – Epidural' };
+function routeBadge(route) {
+  const c = routeColors[route] || 'var(--muted)';
+  return `<span class="route-badge" style="background:${c}22;color:${c};border:1px solid ${c}">${route}</span>`;
+}
+
+// ─── HELPERS ─────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function speciesLabel(s) {
+  return s === 'both' ? '🐾 Both' : s === 'dog' ? '🐶 Dog' : '🐱 Cat';
+}
+
+// Returns routes that are valid for a given species
+function routesForSpecies(med, species) {
+  if (!species) return med.routes;
+  return med.routes.filter(r => r.species === species || r.species === 'both');
+}
+
 // ─── CALCULATE PAGE ───────────────────────────────────────
 function renderCalcList() {
-  const q = document.getElementById('calc-search').value.toLowerCase();
+  const q = (document.getElementById('calc-search')?.value || '').toLowerCase();
   const list = document.getElementById('calc-med-list');
   const filtered = meds.filter(m => m.name.toLowerCase().includes(q));
   if (!filtered.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">${meds.length ? 'No match' : 'No medications yet. Add some first!'}</div></div>`;
+    list.innerHTML = `<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">${meds.length ? 'No match' : 'No medications yet. Add some in the Medications tab!'}</div></div>`;
     return;
   }
-  list.innerHTML = filtered.map(m => `
-    <div class="med-item ${selectedMed?.id === m.id ? 'selected' : ''}" onclick="selectMed('${m.id}')">
-      <div class="species-dot ${m.species}"></div>
+  list.innerHTML = filtered.map(m => {
+    const allSpecies = [...new Set(m.routes.map(r => r.species))];
+    const sp = allSpecies.length === 1 ? allSpecies[0] : (allSpecies.includes('both') && allSpecies.length === 1 ? 'both' : 'both');
+    const dotSp = m.routes.some(r => r.species === 'dog') && m.routes.some(r => r.species === 'cat') ? 'both' : (m.routes[0]?.species || 'both');
+    return `
+    <div class="med-item clickable ${selectedMed?.id === m.id ? 'selected' : ''}" onclick="selectMed('${m.id}')">
+      <div class="species-dot ${dotSp}"></div>
       <div style="flex:1">
         <div class="med-name">${m.name}</div>
         <div class="med-tags">
-          <span class="tag ${m.species}">${m.species === 'both' ? '🐾 Both' : m.species === 'dog' ? '🐶 Dog' : '🐱 Cat'}</span>
-          <span class="tag route">${m.route}</span>
+          ${[...new Set(m.routes.map(r=>r.route))].map(r => `<span class="tag route">${r}</span>`).join('')}
+          ${[...new Set(m.routes.map(r=>r.species))].map(s => `<span class="tag ${s === 'both' ? 'both' : s}">${speciesLabel(s)}</span>`).join('')}
         </div>
+        ${m.contraindications?.length ? `<div style="font-size:11px;color:var(--danger);margin-top:4px">🚫 ${m.contraindications.join(', ')}</div>` : ''}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function filterCalcMeds() { renderCalcList(); }
 
 function selectMed(id) {
   selectedMed = meds.find(m => m.id === id);
+  selectedRoute = null; selectedCase = null; selectedConc = null; calcSpecies = null;
   renderCalcList();
-  const card = document.getElementById('calc-form-card');
-  card.style.display = 'block';
   document.getElementById('result-box').classList.remove('show');
 
-  // species toggle
-  const toggle = document.getElementById('calc-species-toggle');
-  const options = selectedMed.species === 'both' ? ['dog','cat'] : [selectedMed.species];
-  toggle.innerHTML = options.map(s => `
-    <button class="species-btn ${s} ${options.length === 1 ? 'active' : ''}" onclick="selectCalcSpecies('${s}')">
-      ${s === 'dog' ? '🐶 Dog' : '🐱 Cat'}
-    </button>
-  `).join('');
-  calcSpecies = options.length === 1 ? options[0] : null;
-
+  // Med info
   document.getElementById('selected-med-info').innerHTML = `
     <div style="background:var(--surface2);border-radius:10px;padding:12px 14px">
       <div style="font-size:17px;font-weight:800">${selectedMed.name}</div>
-      <div style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:4px">${selectedMed.dose} mg/kg · ${selectedMed.conc} mg/ml · ${selectedMed.route}</div>
-      ${selectedMed.notes ? `<div style="font-size:12px;color:var(--warn);margin-top:4px">ℹ️ ${selectedMed.notes}</div>` : ''}
-    </div>
-  `;
+      ${selectedMed.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:4px">📝 ${selectedMed.notes}</div>` : ''}
+    </div>`;
 
-  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Contraindications
+  const contraEl = document.getElementById('calc-contras');
+  if (selectedMed.contraindications?.length) {
+    contraEl.style.display = 'block';
+    contraEl.innerHTML = `<div class="contra-box" style="margin-bottom:14px">
+      <span>🚫</span>
+      <div><strong>Contraindications:</strong> ${selectedMed.contraindications.join(' · ')}</div>
+    </div>`;
+  } else {
+    contraEl.style.display = 'none';
+  }
+
+  // Species toggle — derive from all routes
+  const allSpecies = [...new Set(selectedMed.routes.map(r => r.species === 'both' ? ['dog','cat'] : [r.species]).flat())];
+  const toggle = document.getElementById('calc-species-toggle');
+  toggle.innerHTML = allSpecies.map(s => `
+    <button class="species-btn ${s}" onclick="selectCalcSpecies('${s}', this)">
+      ${s === 'dog' ? '🐶 Dog' : '🐱 Cat'}
+    </button>`).join('');
+  if (allSpecies.length === 1) {
+    calcSpecies = allSpecies[0];
+    toggle.querySelector('.species-btn').classList.add('active');
+    renderRoutes();
+  }
+
+  document.getElementById('calc-form-card').style.display = 'block';
+  document.getElementById('route-field').style.display = 'none';
+  document.getElementById('case-field').style.display = 'none';
+  document.getElementById('conc-field').style.display = 'none';
+  document.getElementById('calc-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function selectCalcSpecies(s) {
+function selectCalcSpecies(s, btn) {
   calcSpecies = s;
+  selectedRoute = null; selectedCase = null; selectedConc = null;
   document.querySelectorAll('#calc-species-toggle .species-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('result-box').classList.remove('show');
+  renderRoutes();
+}
+
+function renderRoutes() {
+  const routes = routesForSpecies(selectedMed, calcSpecies);
+  const rf = document.getElementById('route-field');
+  const rs = document.getElementById('route-selector');
+  if (!routes.length) { rf.style.display = 'none'; return; }
+  rf.style.display = 'block';
+
+  rs.innerHTML = routes.map(r => {
+    const defaultCase = r.cases[0];
+    const doseDisplay = r.cases.length === 1 ? `${defaultCase.dose} mg/kg` : `${Math.min(...r.cases.map(c=>c.dose))}–${Math.max(...r.cases.map(c=>c.dose))} mg/kg`;
+    return `
+    <div class="route-option ${selectedRoute?.id === r.id ? 'selected' : ''}" onclick="selectRoute('${r.id}')">
+      <div class="route-option-top">
+        <div class="route-option-name">${routeLabels[r.route] || r.route}</div>
+        <div class="route-option-dose">${doseDisplay}</div>
+      </div>
+      ${r.concentrations?.length > 1 ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Available: ${r.concentrations.join(', ')} mg/ml</div>` : (r.concentrations?.length === 1 ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">${r.concentrations[0]} mg/ml</div>` : '')}
+    </div>`;
+  }).join('');
+
+  if (routes.length === 1) {
+    selectedRoute = routes[0];
+    rs.querySelector('.route-option')?.classList.add('selected');
+    renderCasesAndConc();
+  }
+}
+
+function selectRoute(routeId) {
+  selectedRoute = selectedMed.routes.find(r => r.id === routeId);
+  selectedCase = null; selectedConc = null;
+  document.getElementById('result-box').classList.remove('show');
+  document.querySelectorAll('.route-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.route-option').forEach(el => {
+    if (el.getAttribute('onclick') === `selectRoute('${routeId}')`) el.classList.add('selected');
+  });
+  renderCasesAndConc();
+}
+
+function renderCasesAndConc() {
+  if (!selectedRoute) return;
+
+  // Cases
+  const cf = document.getElementById('case-field');
+  const cs = document.getElementById('case-selector');
+  if (selectedRoute.cases.length > 1) {
+    cf.style.display = 'block';
+    cs.innerHTML = selectedRoute.cases.map(c => `
+      <div class="case-chip ${selectedCase?.id === c.id ? 'selected' : ''}" onclick="selectCase('${c.id}')">
+        ${c.label || 'Standard'} (${c.dose} mg/kg)
+      </div>`).join('');
+  } else {
+    cf.style.display = 'none';
+    selectedCase = selectedRoute.cases[0] || null;
+  }
+
+  // Concentration
+  const concF = document.getElementById('conc-field');
+  const concW = document.getElementById('conc-selector-wrap');
+  const concs = selectedRoute.concentrations || [];
+  if (concs.length > 1) {
+    concF.style.display = 'block';
+    concW.innerHTML = `<div class="conc-selector">${concs.map(c => `
+      <div class="conc-chip ${selectedConc === c ? 'selected' : ''}" onclick="selectConc(${c})">${c} mg/ml</div>`).join('')}
+    </div>`;
+  } else if (concs.length === 1) {
+    concF.style.display = 'none';
+    selectedConc = concs[0];
+  } else {
+    concF.style.display = 'none';
+    selectedConc = null;
+  }
+}
+
+function selectCase(caseId) {
+  selectedCase = selectedRoute.cases.find(c => c.id === caseId);
+  document.querySelectorAll('#case-selector .case-chip').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('#case-selector .case-chip').forEach(el => {
+    if (el.getAttribute('onclick') === `selectCase('${caseId}')`) el.classList.add('selected');
+  });
+  document.getElementById('result-box').classList.remove('show');
+}
+
+function selectConc(c) {
+  selectedConc = c;
+  document.querySelectorAll('.conc-chip').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.conc-chip').forEach(el => {
+    if (el.getAttribute('onclick') === `selectConc(${c})`) el.classList.add('selected');
+  });
 }
 
 function setUnit(u) {
@@ -787,36 +694,39 @@ function setUnit(u) {
 function calculate() {
   if (!selectedMed) return toast('Select a medication first', 'error');
   if (!calcSpecies) return toast('Select animal type', 'error');
+  if (!selectedRoute) return toast('Select a route', 'error');
+  if (selectedRoute.cases.length > 1 && !selectedCase) return toast('Select a dosing case', 'error');
+  if (!selectedCase) selectedCase = selectedRoute.cases[0];
+
   const rawW = parseFloat(document.getElementById('calc-weight').value);
   if (!rawW || rawW <= 0) return toast('Enter a valid weight', 'error');
 
+  // Concentration
+  const conc = selectedConc || (selectedRoute.concentrations?.[0] || null);
   const weightKg = weightUnit === 'lbs' ? rawW * 0.453592 : rawW;
-  const doseMg = selectedMed.dose * weightKg;
-  const volMl = doseMg / selectedMed.conc;
+  const doseMg = selectedCase.dose * weightKg;
+  const volMl = conc ? doseMg / conc : null;
 
   document.getElementById('res-dose').textContent = doseMg.toFixed(2) + ' mg';
-  document.getElementById('res-vol').textContent = volMl.toFixed(3) + ' ml';
+  document.getElementById('res-vol').textContent = volMl !== null ? volMl.toFixed(3) + ' ml' : '— (no concentration set)';
   document.getElementById('res-drug').textContent = selectedMed.name;
   document.getElementById('res-species').textContent = calcSpecies === 'dog' ? '🐶 Dog' : '🐱 Cat';
   document.getElementById('res-weight').textContent = rawW + ' ' + weightUnit + (weightUnit === 'lbs' ? ` (${weightKg.toFixed(2)} kg)` : '');
-  document.getElementById('res-dosekg').textContent = selectedMed.dose + ' mg/kg';
-
-  const routeColors = { IV:'#f04a6a', IM:'#f0a84a', SC:'#4af0b0', PO:'#4a9ff0', TOP:'#c084fc', IN:'#60d9fa' };
-  const color = routeColors[selectedMed.route] || 'var(--muted)';
-  document.getElementById('res-route-badge').innerHTML = `<span class="route-badge" style="background:${color}22;color:${color};border:1px solid ${color}">${selectedMed.route}</span>`;
+  document.getElementById('res-dosekg').textContent = selectedCase.dose + ' mg/kg';
+  document.getElementById('res-route-badge').innerHTML = routeBadge(selectedRoute.route);
+  document.getElementById('res-case-label').textContent = selectedCase.label && selectedCase.label !== 'Standard' ? `Indication: ${selectedCase.label}` : '';
 
   document.getElementById('res-calc-steps').innerHTML = `
     <div class="calc-step">
-      <span>${weightKg.toFixed(3)} kg</span> × <span>${selectedMed.dose} mg/kg</span> = <span>${doseMg.toFixed(2)} mg</span><br>
-      <span>${doseMg.toFixed(2)} mg</span> ÷ <span>${selectedMed.conc} mg/ml</span> = <span>${volMl.toFixed(3)} ml</span>
-    </div>
-  `;
+      <span>${weightKg.toFixed(3)} kg</span> × <span>${selectedCase.dose} mg/kg</span> = <span>${doseMg.toFixed(2)} mg</span>
+      ${conc ? `<br><span>${doseMg.toFixed(2)} mg</span> ÷ <span>${conc} mg/ml</span> = <span>${volMl.toFixed(3)} ml</span>` : ''}
+    </div>`;
 
   document.getElementById('result-box').classList.add('show');
 
-  // auto-save
+  // Save to history
   const entry = {
-    id: Date.now().toString(),
+    id: uid(),
     drug: selectedMed.name,
     species: calcSpecies,
     weight: rawW,
@@ -824,15 +734,15 @@ function calculate() {
     weightKg,
     dose: doseMg,
     vol: volMl,
-    route: selectedMed.route,
+    route: selectedRoute.route,
+    caseLabel: selectedCase.label || 'Standard',
+    conc,
     time: new Date().toISOString()
   };
-  history.unshift(entry);
-  if (history.length > 100) history.pop();
+  calcHistory.unshift(entry);
+  if (calcHistory.length > 100) calcHistory.pop();
   save();
 }
-
-function saveToHistory() { toast('✅ Already saved to history!'); }
 
 // ─── MED LIST PAGE ────────────────────────────────────────
 function setFilter(f) {
@@ -842,11 +752,12 @@ function setFilter(f) {
 }
 
 function renderMedList() {
-  const q = document.getElementById('meds-search').value.toLowerCase();
+  const q = (document.getElementById('meds-search')?.value || '').toLowerCase();
   let filtered = meds.filter(m => {
     const matchQ = m.name.toLowerCase().includes(q);
-    const matchF = medFilter === 'all' || m.species === medFilter || (medFilter !== 'both' && m.species === 'both');
-    return matchQ && matchF;
+    if (!matchQ) return false;
+    if (medFilter === 'all') return true;
+    return m.routes.some(r => r.species === medFilter || r.species === 'both');
   });
 
   const list = document.getElementById('med-list');
@@ -854,24 +765,34 @@ function renderMedList() {
     list.innerHTML = `<div class="empty"><div class="empty-icon">🗂️</div><div class="empty-text">${meds.length ? 'No match' : 'No medications yet. Tap + Add to get started.'}</div></div>`;
     return;
   }
-  list.innerHTML = filtered.map(m => `
+
+  list.innerHTML = filtered.map(m => {
+    const routeRows = m.routes.map(r => {
+      const doses = r.cases.map(c => `${c.label || 'Standard'}: ${c.dose} mg/kg`).join(' · ');
+      const concStr = r.concentrations?.length ? r.concentrations.join('/') + ' mg/ml' : '';
+      return `<div class="route-row">
+        <span class="rr-label">${r.route}</span>
+        <span class="rr-sp ${r.species}">${speciesLabel(r.species)}</span>
+        <span>${doses}</span>
+        ${concStr ? `<span style="opacity:0.6">${concStr}</span>` : ''}
+      </div>`;
+    }).join('');
+
+    return `
     <div class="med-item">
-      <div class="species-dot ${m.species}"></div>
-      <div style="flex:1">
+      <div class="species-dot ${m.routes.length > 0 ? m.routes[0].species : 'both'}"></div>
+      <div style="flex:1;min-width:0">
         <div class="med-name">${m.name}</div>
-        <div style="font-size:12px;color:var(--muted);font-family:var(--mono)">${m.dose} mg/kg · ${m.conc} mg/ml</div>
-        <div class="med-tags">
-          <span class="tag ${m.species}">${m.species === 'both' ? '🐾 Both' : m.species === 'dog' ? '🐶 Dog' : '🐱 Cat'}</span>
-          <span class="tag route">${m.route}</span>
-        </div>
-        ${m.notes ? `<div style="font-size:11px;color:var(--warn);margin-top:4px">ℹ️ ${m.notes}</div>` : ''}
+        ${m.contraindications?.length ? `<div style="font-size:11px;color:var(--danger);margin-top:3px">🚫 ${m.contraindications.join(', ')}</div>` : ''}
+        ${m.notes ? `<div style="font-size:11px;color:var(--warn);margin-top:3px">📝 ${m.notes}</div>` : ''}
+        <div class="route-rows">${routeRows}</div>
       </div>
       <div class="med-actions">
         <div class="icon-btn edit" onclick="openEditModal('${m.id}')">✏️</div>
         <div class="icon-btn del" onclick="deleteMed('${m.id}')">🗑️</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ─── MODAL ────────────────────────────────────────────────
@@ -879,13 +800,10 @@ function openAddModal() {
   editingId = null;
   document.getElementById('modal-title').textContent = 'Add Medication';
   document.getElementById('m-name').value = '';
-  document.getElementById('m-dose').value = '';
-  document.getElementById('m-conc').value = '';
-  document.getElementById('m-route').value = 'PO';
+  document.getElementById('m-contra').value = '';
   document.getElementById('m-notes').value = '';
-  modalSpecies = 'dog';
-  document.querySelectorAll('.modal .species-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.modal .species-btn.dog').classList.add('active');
+  document.getElementById('route-entries').innerHTML = '';
+  addRouteEntry();
   document.getElementById('med-modal').classList.add('show');
 }
 
@@ -895,65 +813,168 @@ function openEditModal(id) {
   editingId = id;
   document.getElementById('modal-title').textContent = 'Edit Medication';
   document.getElementById('m-name').value = m.name;
-  document.getElementById('m-dose').value = m.dose;
-  document.getElementById('m-conc').value = m.conc;
-  document.getElementById('m-route').value = m.route;
+  document.getElementById('m-contra').value = (m.contraindications || []).join(', ');
   document.getElementById('m-notes').value = m.notes || '';
-  modalSpecies = m.species;
-  document.querySelectorAll('.modal .species-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.modal .species-btn.${m.species}`)?.classList.add('active');
+  document.getElementById('route-entries').innerHTML = '';
+  if (m.routes?.length) {
+    m.routes.forEach(r => addRouteEntry(r));
+  } else {
+    addRouteEntry();
+  }
   document.getElementById('med-modal').classList.add('show');
 }
 
-function selectModalSpecies(s) {
-  modalSpecies = s;
-  document.querySelectorAll('.modal .species-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.modal .species-btn.${s}`)?.classList.add('active');
+function addRouteEntry(existing) {
+  const id = existing?.id || uid();
+  const container = document.getElementById('route-entries');
+  const div = document.createElement('div');
+  div.className = 'route-entry';
+  div.dataset.routeId = id;
+
+  const species = existing?.species || 'both';
+  const route = existing?.route || 'PO';
+  const concs = (existing?.concentrations || []).join(', ');
+  const cases = existing?.cases || [{ id: uid(), label: 'Standard', dose: '' }];
+
+  div.innerHTML = `
+    <div class="route-entry-header">
+      <div class="route-entry-title">Route Entry</div>
+      <button class="route-entry-remove" onclick="removeRouteEntry('${id}')">✕</button>
+    </div>
+    <div class="field">
+      <label>ROUTE</label>
+      <select class="re-route">
+        ${Object.entries(routeLabels).map(([k,v]) => `<option value="${k}" ${route===k?'selected':''}>${v}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>SPECIES</label>
+      <div class="species-toggle re-species-toggle">
+        <button class="species-btn dog ${species==='dog'?'active':''}" onclick="toggleReSpecies(this,'dog','${id}')">🐶 Dog</button>
+        <button class="species-btn cat ${species==='cat'?'active':''}" onclick="toggleReSpecies(this,'cat','${id}')">🐱 Cat</button>
+        <button class="species-btn both ${species==='both'?'active':''}" onclick="toggleReSpecies(this,'both','${id}')">Both</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>CONCENTRATIONS (mg/ml) — separate multiple with commas</label>
+      <input type="text" class="re-concs" placeholder="e.g. 5, 20, 50" value="${concs}">
+    </div>
+    <div class="field">
+      <label>DOSING CASES</label>
+      <div class="re-cases">
+        ${cases.map(c => caseRowHTML(c)).join('')}
+      </div>
+      <button class="btn-xs btn-secondary" style="margin-top:6px;border:1px dashed var(--border);background:transparent;color:var(--muted)" onclick="addCaseRow('${id}')">＋ Add case</button>
+    </div>`;
+
+  container.appendChild(div);
+}
+
+function caseRowHTML(c) {
+  return `<div class="case-row" data-case-id="${c.id}">
+    <div class="field" style="margin:0">
+      <input type="text" class="cr-label" placeholder="Label (e.g. Loading dose)" value="${c.label || ''}">
+    </div>
+    <div class="field" style="margin:0">
+      <input type="number" class="cr-dose" placeholder="mg/kg" step="0.001" min="0" value="${c.dose || ''}">
+    </div>
+    <button class="case-remove" onclick="removeCaseRow(this)">✕</button>
+  </div>`;
+}
+
+function addCaseRow(routeEntryId) {
+  const entry = document.querySelector(`.route-entry[data-route-id="${routeEntryId}"]`);
+  const casesDiv = entry.querySelector('.re-cases');
+  const newCase = { id: uid(), label: '', dose: '' };
+  casesDiv.insertAdjacentHTML('beforeend', caseRowHTML(newCase));
+}
+
+function removeCaseRow(btn) {
+  const row = btn.closest('.case-row');
+  const casesDiv = row.parentElement;
+  if (casesDiv.querySelectorAll('.case-row').length <= 1) return toast('At least one dosing case required', 'error');
+  row.remove();
+}
+
+function removeRouteEntry(id) {
+  const entries = document.querySelectorAll('.route-entry');
+  if (entries.length <= 1) return toast('At least one route required', 'error');
+  document.querySelector(`.route-entry[data-route-id="${id}"]`)?.remove();
+}
+
+function toggleReSpecies(btn, s, routeEntryId) {
+  const entry = document.querySelector(`.route-entry[data-route-id="${routeEntryId}"]`);
+  entry.querySelectorAll('.re-species-toggle .species-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 function closeModal() { document.getElementById('med-modal').classList.remove('show'); }
 
 function saveMed() {
   const name = document.getElementById('m-name').value.trim();
-  const dose = parseFloat(document.getElementById('m-dose').value);
-  const conc = parseFloat(document.getElementById('m-conc').value);
-  const route = document.getElementById('m-route').value;
+  if (!name) return toast('Enter medication name', 'error');
+
+  const contraRaw = document.getElementById('m-contra').value.trim();
+  const contraindications = contraRaw ? contraRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
   const notes = document.getElementById('m-notes').value.trim();
 
-  if (!name) return toast('Enter medication name', 'error');
-  if (!dose || dose <= 0) return toast('Enter valid dose', 'error');
-  if (!conc || conc <= 0) return toast('Enter valid concentration', 'error');
+  // Collect routes
+  const routeEntries = document.querySelectorAll('.route-entry');
+  if (!routeEntries.length) return toast('Add at least one route', 'error');
+
+  const routes = [];
+  for (const entry of routeEntries) {
+    const routeId = entry.dataset.routeId;
+    const route = entry.querySelector('.re-route').value;
+    const speciesActive = entry.querySelector('.re-species-toggle .species-btn.active');
+    const species = speciesActive ? (speciesActive.classList.contains('dog') ? 'dog' : speciesActive.classList.contains('cat') ? 'cat' : 'both') : 'both';
+    const concsRaw = entry.querySelector('.re-concs').value.trim();
+    const concentrations = concsRaw ? concsRaw.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0) : [];
+
+    const caseRows = entry.querySelectorAll('.case-row');
+    const cases = [];
+    for (const cr of caseRows) {
+      const label = cr.querySelector('.cr-label').value.trim() || 'Standard';
+      const dose = parseFloat(cr.querySelector('.cr-dose').value);
+      if (!dose || dose <= 0) return toast(`Enter valid dose for "${label}" in route ${route}`, 'error');
+      cases.push({ id: cr.dataset.caseId || uid(), label, dose });
+    }
+    if (!cases.length) return toast(`Route ${route} needs at least one dosing case`, 'error');
+    routes.push({ id: routeId, route, species, concentrations, cases });
+  }
 
   if (editingId) {
     const idx = meds.findIndex(m => m.id === editingId);
-    meds[idx] = { ...meds[idx], name, species: modalSpecies, dose, conc, route, notes };
+    meds[idx] = { ...meds[idx], name, contraindications, notes, routes };
     toast('✅ Medication updated');
   } else {
-    meds.push({ id: Date.now().toString(), name, species: modalSpecies, dose, conc, route, notes });
+    meds.push({ id: uid(), name, contraindications, notes, routes });
     toast('✅ Medication added');
   }
   save();
   closeModal();
   renderMedList();
+  renderCalcList();
 }
 
 function deleteMed(id) {
   if (!confirm('Delete this medication?')) return;
   meds = meds.filter(m => m.id !== id);
-  if (selectedMed?.id === id) { selectedMed = null; document.getElementById('calc-form-card').style.display = 'none'; }
-  save();
-  renderMedList();
-  toast('Deleted');
+  if (selectedMed?.id === id) {
+    selectedMed = null;
+    document.getElementById('calc-form-card').style.display = 'none';
+  }
+  save(); renderMedList(); toast('Deleted');
 }
 
 // ─── HISTORY ─────────────────────────────────────────────
 function renderHistory() {
   const list = document.getElementById('history-list');
-  if (!history.length) {
+  if (!calcHistory.length) {
     list.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No calculations yet</div></div>`;
     return;
   }
-  list.innerHTML = history.map(h => {
+  list.innerHTML = calcHistory.map(h => {
     const d = new Date(h.time);
     const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     return `
@@ -963,32 +984,28 @@ function renderHistory() {
         <div class="history-time">${timeStr}</div>
       </div>
       <div class="history-dose">${h.dose.toFixed(2)} mg</div>
-      <div class="history-vol">${h.vol.toFixed(3)} ml</div>
-      <div class="history-detail">${h.species === 'dog' ? '🐶' : '🐱'} ${h.weight} ${h.unit} · ${h.route}</div>
-    </div>
-  `}).join('');
+      <div class="history-vol">${h.vol !== null && h.vol !== undefined ? h.vol.toFixed(3) + ' ml' : '—'}</div>
+      <div class="history-detail">${h.species === 'dog' ? '🐶' : '🐱'} ${h.weight} ${h.unit} · ${h.route}${h.caseLabel && h.caseLabel !== 'Standard' ? ' · ' + h.caseLabel : ''}</div>
+    </div>`;
+  }).join('');
 }
 
 function clearHistory() {
   if (!confirm('Clear all history?')) return;
-  history = [];
-  save();
-  renderHistory();
-  toast('History cleared');
+  calcHistory = []; save(); renderHistory(); toast('History cleared');
 }
 
 // ─── SETTINGS ────────────────────────────────────────────
 function updateStats() {
   document.getElementById('stat-meds').textContent = meds.length;
-  document.getElementById('stat-calcs').textContent = history.length;
+  document.getElementById('stat-calcs').textContent = calcHistory.length;
 }
 
 function exportData() {
-  const data = { meds, history, exportedAt: new Date().toISOString() };
+  const data = { version: SCHEMA_VERSION, meds, history: calcHistory, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'vetdose-backup.json';
+  const a = document.createElement('a'); a.href = url; a.download = 'vetdose-backup-v2.json';
   a.click(); URL.revokeObjectURL(url);
   toast('✅ Backup exported');
 }
@@ -1001,11 +1018,11 @@ function importData(e) {
     try {
       const data = JSON.parse(ev.target.result);
       if (!Array.isArray(data.meds)) throw new Error();
-      meds = data.meds;
-      history = data.history || [];
-      save();
-      updateStats();
-      toast('✅ Backup imported');
+      // Migrate if old format
+      meds = migrateV1ToV2(data.meds);
+      calcHistory = data.history || [];
+      save(); updateStats(); renderMedList(); renderCalcList();
+      toast('✅ Backup imported & migrated');
     } catch { toast('Invalid backup file', 'error'); }
   };
   reader.readAsText(file);
@@ -1014,40 +1031,79 @@ function importData(e) {
 
 function clearAll() {
   if (!confirm('Delete ALL data? This cannot be undone.')) return;
-  meds = []; history = [];
-  save(); updateStats();
+  meds = []; calcHistory = []; save(); updateStats(); renderMedList(); renderCalcList();
   toast('All data cleared');
 }
 
 function loadSamples() {
   if (meds.length && !confirm('This will add sample meds to your existing list. Continue?')) return;
   const samples = [
-    { id: 's1', name: 'Amoxicillin', species: 'both', dose: 11, conc: 50, route: 'PO', notes: 'Give with food' },
-    { id: 's2', name: 'Meloxicam', species: 'dog', dose: 0.2, conc: 5, route: 'SC', notes: 'Loading dose' },
-    { id: 's3', name: 'Meloxicam', species: 'cat', dose: 0.3, conc: 5, route: 'SC', notes: 'Single dose only' },
-    { id: 's4', name: 'Metronidazole', species: 'both', dose: 15, conc: 5, route: 'PO', notes: '' },
-    { id: 's5', name: 'Dexamethasone', species: 'both', dose: 0.1, conc: 2, route: 'IV', notes: '' },
-    { id: 's6', name: 'Ketamine', species: 'both', dose: 5, conc: 50, route: 'IM', notes: 'Induction only' },
-    { id: 's7', name: 'Butorphanol', species: 'both', dose: 0.2, conc: 10, route: 'IM', notes: 'Pre-med' },
-    { id: 's8', name: 'Enrofloxacin', species: 'dog', dose: 5, conc: 50, route: 'PO', notes: '' },
-    { id: 's9', name: 'Atenolol', species: 'cat', dose: 6.25, conc: 25, route: 'PO', notes: 'Cardiac' },
-    { id: 's10', name: 'Furosemide', species: 'both', dose: 2, conc: 10, route: 'IV', notes: '' },
+    {
+      id: 's1', name: 'Amoxicillin', contraindications: ['Penicillin allergy'], notes: 'Give with food',
+      routes: [
+        { id: 'r_s1a', route: 'PO', species: 'both', concentrations: [50], cases: [{ id: 'c_s1a1', label: 'Standard', dose: 11 }, { id: 'c_s1a2', label: 'High dose', dose: 22 }] }
+      ]
+    },
+    {
+      id: 's2', name: 'Meloxicam', contraindications: ['Renal failure', 'GI ulceration', 'Concurrent NSAID use'], notes: 'Monitor renal function',
+      routes: [
+        { id: 'r_s2a', route: 'SC', species: 'dog', concentrations: [5], cases: [{ id: 'c_s2a1', label: 'Loading dose', dose: 0.2 }] },
+        { id: 'r_s2b', route: 'PO', species: 'dog', concentrations: [1.5, 5], cases: [{ id: 'c_s2b1', label: 'Maintenance', dose: 0.1 }] },
+        { id: 'r_s2c', route: 'SC', species: 'cat', concentrations: [5], cases: [{ id: 'c_s2c1', label: 'Single dose only', dose: 0.3 }] }
+      ]
+    },
+    {
+      id: 's3', name: 'Metronidazole', contraindications: [], notes: '',
+      routes: [
+        { id: 'r_s3a', route: 'PO', species: 'both', concentrations: [5], cases: [{ id: 'c_s3a1', label: 'Standard', dose: 15 }, { id: 'c_s3a2', label: 'Anaerobic infection', dose: 25 }] },
+        { id: 'r_s3b', route: 'IV', species: 'both', concentrations: [5], cases: [{ id: 'c_s3b1', label: 'Standard', dose: 15 }] }
+      ]
+    },
+    {
+      id: 's4', name: 'Dexamethasone', contraindications: ['Active infection', 'Diabetes mellitus'], notes: '',
+      routes: [
+        { id: 'r_s4a', route: 'IV', species: 'both', concentrations: [2], cases: [{ id: 'c_s4a1', label: 'Anti-inflammatory', dose: 0.1 }, { id: 'c_s4a2', label: 'Shock', dose: 1 }] },
+        { id: 'r_s4b', route: 'IM', species: 'both', concentrations: [2], cases: [{ id: 'c_s4b1', label: 'Standard', dose: 0.1 }] }
+      ]
+    },
+    {
+      id: 's5', name: 'Ketamine', contraindications: ['Hypertension', 'Hyperthyroidism'], notes: 'Induction only — use with sedative',
+      routes: [
+        { id: 'r_s5a', route: 'IV', species: 'both', concentrations: [50, 100], cases: [{ id: 'c_s5a1', label: 'Induction dog', dose: 5 }, { id: 'c_s5a2', label: 'Induction cat', dose: 7.5 }] },
+        { id: 'r_s5b', route: 'IM', species: 'both', concentrations: [50, 100], cases: [{ id: 'c_s5b1', label: 'Chemical restraint', dose: 10 }] }
+      ]
+    },
+    {
+      id: 's6', name: 'Furosemide', contraindications: ['Anuria', 'Severe electrolyte depletion'], notes: 'Monitor electrolytes',
+      routes: [
+        { id: 'r_s6a', route: 'IV', species: 'both', concentrations: [10], cases: [{ id: 'c_s6a1', label: 'Acute', dose: 2 }, { id: 'c_s6a2', label: 'Severe pulmonary oedema', dose: 4 }] },
+        { id: 'r_s6b', route: 'PO', species: 'both', concentrations: [10, 40], cases: [{ id: 'c_s6b1', label: 'Maintenance', dose: 2 }] }
+      ]
+    },
+    {
+      id: 's7', name: 'Butorphanol', contraindications: [], notes: 'Pre-med; partial opioid agonist',
+      routes: [
+        { id: 'r_s7a', route: 'IM', species: 'both', concentrations: [10], cases: [{ id: 'c_s7a1', label: 'Sedation/pre-med', dose: 0.2 }, { id: 'c_s7a2', label: 'Analgesia', dose: 0.4 }] },
+        { id: 'r_s7b', route: 'IV', species: 'both', concentrations: [10], cases: [{ id: 'c_s7b1', label: 'Sedation', dose: 0.2 }] }
+      ]
+    },
+    {
+      id: 's8', name: 'Enrofloxacin', contraindications: ['Growing animals < 12 months (dogs)', 'Seizure history'], notes: 'Avoid in young growing dogs',
+      routes: [
+        { id: 'r_s8a', route: 'PO', species: 'dog', concentrations: [50], cases: [{ id: 'c_s8a1', label: 'Standard', dose: 5 }, { id: 'c_s8a2', label: 'Severe infection', dose: 10 }] },
+        { id: 'r_s8b', route: 'SC', species: 'dog', concentrations: [50], cases: [{ id: 'c_s8b1', label: 'Standard', dose: 5 }] }
+      ]
+    }
   ];
   const existingIds = new Set(meds.map(m => m.id));
   samples.filter(s => !existingIds.has(s.id)).forEach(s => meds.push(s));
-  save(); updateStats();
+  save(); updateStats(); renderMedList(); renderCalcList();
   toast('✅ Sample medications loaded');
 }
 
 // ─── INIT ─────────────────────────────────────────────────
+loadData();
 renderCalcList();
 </script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js");
-}
-</script>
-
 </body>
 </html>
