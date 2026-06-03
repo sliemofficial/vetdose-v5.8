@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>VetDose</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -34,7 +34,10 @@
     --sans: 'Syne', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; padding-bottom: 90px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+  /* iOS safe area support */
+  .bottom-nav { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important; }
+  .header { padding-top: max(12px, env(safe-area-inset-top, 12px)); }
 
   .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
   .logo { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
@@ -311,6 +314,129 @@
   .fatal-icon { font-size: 48px; margin-bottom: 16px; }
   .fatal-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; color: var(--danger); }
   .fatal-msg { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 320px; margin-bottom: 20px; }
+
+  /* ═══ PATIENTS MODULE CSS ════════════════════════════════ */
+  .patient-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; transition: border-color 0.2s; }
+  .patient-card:active { border-color: var(--accent2); }
+  .patient-card-top { display: flex; align-items: center; gap: 11px; }
+  .patient-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .patient-avatar.dog { background: rgba(74,159,240,0.18); }
+  .patient-avatar.cat { background: rgba(192,132,252,0.18); }
+  .patient-avatar.other { background: rgba(74,240,176,0.18); }
+  .patient-info { flex: 1; min-width: 0; }
+  .patient-name { font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .patient-breed { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .patient-tags { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+  .ptag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.4px; }
+  .ptag.followup { background: rgba(240,168,74,0.2); color: var(--warn); border: 1px solid rgba(240,168,74,0.4); }
+  .ptag.species { background: rgba(74,159,240,0.15); color: var(--accent2); }
+  .ptag.visits { background: rgba(74,240,176,0.1); color: var(--accent); }
+
+  /* Visit / SOAP card */
+  .visit-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px; margin-bottom: 9px; }
+  .visit-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .visit-date { font-size: 11px; font-family: var(--mono); color: var(--accent2); }
+  .visit-complaint { font-size: 14px; font-weight: 700; }
+  .visit-diag { font-size: 12px; color: var(--warn); margin-top: 3px; }
+  .soap-section { margin-bottom: 10px; }
+  .soap-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+  .soap-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .soap-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 8px; }
+  .soap-chip.s { background: rgba(74,159,240,0.12); color: var(--accent2); }
+  .soap-chip.o { background: rgba(74,240,176,0.1); color: var(--accent); }
+  .soap-chip.a { background: rgba(240,168,74,0.12); color: var(--warn); }
+  .soap-chip.p { background: rgba(192,132,252,0.12); color: var(--cat); }
+  .vital-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 7px; }
+  .vital-item { background: var(--surface); border-radius: 7px; padding: 7px 9px; }
+  .vital-label { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 0.5px; }
+  .vital-val { font-size: 13px; font-family: var(--mono); font-weight: 700; margin-top: 2px; color: var(--text); }
+
+  /* Follow-up banner */
+  .followup-banner { background: rgba(240,168,74,0.12); border: 1px solid rgba(240,168,74,0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+  .followup-banner-title { font-size: 12px; font-weight: 800; color: var(--warn); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .followup-item { font-size: 13px; color: var(--text); padding: 5px 0; border-bottom: 1px solid rgba(240,168,74,0.12); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .followup-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .followup-item-name { font-weight: 700; color: var(--accent2); }
+  .followup-item-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Attachment chips */
+  .attach-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
+  .attach-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 5px 11px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: border-color 0.2s; }
+  .attach-chip:active { border-color: var(--accent2); }
+  .attach-chip .attach-icon { font-size: 14px; }
+
+  /* Patient detail pane */
+  .patient-detail-header { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; }
+  .patient-detail-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .back-btn { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--accent2); background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 12px; font-family: var(--sans); }
+
+  /* Prescription card within visit */
+  .rx-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .rx-row:last-child { border-bottom: none; }
+  .rx-drug { font-size: 13px; font-weight: 700; }
+  .rx-dose { font-size: 12px; font-family: var(--mono); color: var(--accent); }
+  .rx-freq { font-size: 11px; color: var(--muted); }
+
+  /* Modal section toggle tabs */
+  .modal-tabs { display: flex; gap: 5px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .modal-tab { padding: 7px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-family: var(--sans); font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.18s; }
+  .modal-tab.active { background: var(--accent2); color: var(--bg); border-color: var(--accent2); }
+  .modal-section { display: none; }
+  .modal-section.active { display: block; }
+
+  /* Attachment add btn */
+  .attach-add { display: flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px dashed var(--border); border-radius: 8px; padding: 9px 13px; font-size: 13px; color: var(--muted); cursor: pointer; margin-top: 7px; width: 100%; font-family: var(--sans); font-weight: 700; transition: border-color 0.2s; }
+  .attach-add:active { border-color: var(--accent2); color: var(--accent2); }
+
+  /* Overdue badge */
+  .overdue { color: var(--danger) !important; }
+  .overdue-badge { background: rgba(240,74,106,0.15); color: var(--danger); border: 1px solid rgba(240,74,106,0.4); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px; }
+
+  /* ═══ V6 NEW CSS ═════════════════════════════════════════ */
+  /* Quick-select vital buttons */
+  .vital-qs { display:flex;gap:5px;flex-wrap:wrap;margin-top:5px; }
+  .vqs-btn { flex:1;min-width:0;padding:7px 4px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all 0.15s;line-height:1.2; }
+  .vqs-btn:active,.vqs-btn.active { transform:scale(0.97); }
+  .vqs-btn.normal.active { background:rgba(74,240,176,0.18);border-color:var(--accent);color:var(--accent); }
+  .vqs-btn.mild.active   { background:rgba(74,159,240,0.18);border-color:var(--accent2);color:var(--accent2); }
+  .vqs-btn.mod.active    { background:rgba(240,168,74,0.18);border-color:var(--warn);color:var(--warn); }
+  .vqs-btn.sev.active    { background:rgba(240,74,106,0.18);border-color:var(--danger);color:var(--danger); }
+  /* Owner cards */
+  .owner-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px; }
+  .owner-card-top { display:flex;align-items:center;gap:11px;cursor:pointer; }
+  .owner-avatar { width:44px;height:44px;border-radius:50%;background:rgba(74,159,240,0.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+  .owner-name { font-size:16px;font-weight:800; }
+  .owner-meta { font-size:12px;color:var(--muted);margin-top:2px; }
+  .owner-pets { margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px; }
+  .owner-pet-row { display:flex;align-items:center;gap:9px;padding:7px 9px;background:var(--surface2);border-radius:8px;cursor:pointer;transition:border-color 0.2s;border:1px solid transparent; }
+  .owner-pet-row:active { border-color:var(--accent2); }
+  /* Vaccine module */
+  .vacc-card { background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 13px;margin-bottom:8px; }
+  .vacc-row { display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border); }
+  .vacc-row:last-child { border-bottom:none;padding-bottom:0; }
+  .vacc-name { font-size:13px;font-weight:700; }
+  .vacc-date { font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px; }
+  .vacc-badge { font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px; }
+  .vacc-badge.ok  { background:rgba(74,240,176,0.15);color:var(--accent);border:1px solid rgba(74,240,176,0.3); }
+  .vacc-badge.soon { background:rgba(240,168,74,0.15);color:var(--warn);border:1px solid rgba(240,168,74,0.3); }
+  .vacc-badge.due  { background:rgba(240,74,106,0.15);color:var(--danger);border:1px solid rgba(240,74,106,0.3); }
+  .vacc-badge.none { background:rgba(107,115,153,0.15);color:var(--muted);border:1px solid var(--border); }
+  /* GitHub sync */
+  .sync-row { display:flex;align-items:center;gap:9px;padding:11px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;margin-bottom:8px; }
+  .sync-dot { width:9px;height:9px;border-radius:50%;background:var(--muted);flex-shrink:0; }
+  .sync-dot.ok { background:var(--accent); }
+  .sync-dot.err { background:var(--danger); }
+  .sync-dot.busy { background:var(--warn);animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  /* Prescription print */
+  .rx-print-btn { display:flex;align-items:center;gap:7px;background:rgba(74,159,240,0.1);border:1px solid var(--accent2);border-radius:9px;padding:10px 14px;font-size:13px;font-weight:700;color:var(--accent2);cursor:pointer;width:100%;font-family:var(--sans);transition:all 0.2s;margin-top:8px; }
+  .rx-print-btn:active { opacity:0.8; }
+  @media print {
+    .bottom-nav,.header,.back-btn,.btn,.icon-btn,.modal-overlay { display:none!important; }
+    body { background:#fff;color:#111;padding:0; }
+    .page { display:block!important;padding:0; }
+    .rx-print-area { display:block; }
+  }
 </style>
 </head>
 <body>
@@ -327,7 +453,7 @@
   <div class="logo">🐾</div>
   <div style="min-width:0">
     <div class="header-title">VetDose</div>
-    <div class="header-sub" id="header-version-sub">Dosage Calculator v4.0</div>
+    <div class="header-sub" id="header-version-sub">Dosage Calculator v5.0</div>
   </div>
   <div class="header-right">
     <div id="header-doctor-display" style="display:none">
@@ -440,9 +566,11 @@
         <div id="res-case-label" style="margin-top:5px;font-size:12px;color:var(--warn)"></div>
         <div id="res-interactions" style="display:none"></div>
         <div id="res-calc-steps" style="margin-top:10px"></div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn btn-secondary btn-sm" style="flex:1" onclick="shareResult()">Share / Print</button>
-          <button class="btn btn-secondary btn-sm" onclick="clearCalcForm()" title="New calculation">✕ Clear</button>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" style="flex:1" onclick="shareResult()">Share</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;color:var(--accent2);border-color:var(--accent2)" onclick="printCalcRx()">🖨 Rx PDF</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;color:var(--accent);border-color:var(--accent)" id="save-to-patient-btn" onclick="saveCalcToPatient()" style="display:none">📋 Patient</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearCalcForm()" title="New calculation">✕</button>
         </div>
       </div>
     </div>
@@ -465,6 +593,43 @@
     <button class="tab" id="filter-both" onclick="setFilter('both')">Both</button>
   </div>
   <div id="med-list"></div>
+</div>
+
+
+<!-- PATIENTS PAGE -->
+<div class="page" id="page-patients">
+
+  <!-- Follow-up banner (filled by JS) -->
+  <div id="followup-banner-wrap"></div>
+
+  <!-- View toggle: Owners / Patients -->
+  <div style="display:flex;gap:7px;margin-bottom:12px">
+    <button class="tab active" id="pview-patients" onclick="setPatientsView('patients')">🐾 Patients</button>
+    <button class="tab" id="pview-owners" onclick="setPatientsView('owners')">👤 Owners</button>
+    <button class="btn btn-primary btn-sm" style="margin-left:auto" id="patients-add-btn" onclick="openNewPatientModal()">+ New Patient</button>
+  </div>
+
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="patients-search" placeholder="Search patients or owners..." oninput="onPatientsSearch()">
+  </div>
+
+  <!-- Patient filters (shown in patients view) -->
+  <div id="patient-filter-tabs" class="filter-tabs" style="margin-bottom:10px">
+    <button class="tab active" id="pf-all" onclick="setPatientFilter('all')">All</button>
+    <button class="tab" id="pf-dog" onclick="setPatientFilter('dog')">🐶 Dogs</button>
+    <button class="tab" id="pf-cat" onclick="setPatientFilter('cat')">🐱 Cats</button>
+    <button class="tab" id="pf-followup" onclick="setPatientFilter('followup')">📅 Due</button>
+  </div>
+
+  <div id="patient-list"></div>
+  <div id="owner-list" style="display:none"></div>
+</div>
+
+<!-- PATIENT DETAIL PAGE -->
+<div class="page" id="page-patient-detail">
+  <button class="back-btn" onclick="showPage('patients')">← Back to Patients</button>
+  <div id="patient-detail-content"></div>
 </div>
 
 
@@ -568,13 +733,40 @@
     <button class="btn btn-danger" onclick="clearAll()">🗑️ Clear All Data</button>
   </div>
 
-  <div style="text-align:center;color:var(--muted);font-size:11px;font-family:var(--mono);padding:20px 0">VetDose v4.0 · Add to Home Screen for app experience</div>
+  <!-- GITHUB SYNC SECTION -->
+  <div class="card">
+    <div class="card-title">☁️ GitHub Cloud Sync</div>
+    <div class="field"><label>GITHUB PERSONAL ACCESS TOKEN</label>
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    </div>
+    <div class="field"><label>GIST ID (leave blank to create new)</label>
+      <input type="text" id="gh-gist-id" placeholder="Auto-created on first sync">
+    </div>
+    <div id="sync-status-row" style="margin-bottom:11px">
+      <div class="sync-row">
+        <div class="sync-dot" id="sync-dot"></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700" id="sync-status-text">Not configured</div>
+          <div style="font-size:11px;color:var(--muted)" id="sync-last-time"></div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="syncNow()">Sync Now</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="saveGitHubSettings()">Save & Connect</button>
+      <button class="btn btn-secondary btn-sm" style="flex:1" onclick="pullFromGist()">⬇ Pull from Cloud</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:9px;line-height:1.6">All data (patients, meds, history) is stored in a single private Gist as encrypted JSON. Token needs <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">gist</code> scope only.</div>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:11px;font-family:var(--mono);padding:20px 0">VetDose v6.0 · Patient Records + Cloud Sync · Add to Home Screen for app experience</div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-calc" onclick="showPage('calc')"><div class="nav-icon">💊</div><span>Calculate</span></div>
-  <div class="nav-item" id="nav-meds" onclick="showPage('meds')"><div class="nav-icon">🗂️</div><span>Medications</span></div>
+  <div class="nav-item" id="nav-patients" onclick="showPage('patients')"><div class="nav-icon">🐾</div><span>Patients</span></div>
+  <div class="nav-item" id="nav-meds" onclick="showPage('meds')"><div class="nav-icon">🗂️</div><span>Meds</span></div>
   <div class="nav-item" id="nav-history" onclick="showPage('history')"><div class="nav-icon">📋</div><span>History</span></div>
   <div class="nav-item" id="nav-settings" onclick="showPage('settings')"><div class="nav-icon">⚙️</div><span>Settings</span></div>
 </div>
@@ -683,6 +875,284 @@
   </div>
 </div>
 
+<!-- ═══ NEW PATIENT MODAL ═══ -->
+<div class="modal-overlay" id="patient-modal" onclick="this.classList.remove('show')">
+<div class="modal" onclick="event.stopPropagation()" style="padding-bottom:40px">
+  <div class="modal-handle"></div>
+  <div class="modal-title" id="patient-modal-title">New Patient</div>
+
+  <div class="modal-tabs" id="patient-modal-tabs">
+    <button class="modal-tab active" onclick="switchPatientModalTab('info')">🐾 Pet Info</button>
+    <button class="modal-tab" onclick="switchPatientModalTab('owner')">👤 Owner</button>
+    <button class="modal-tab" onclick="switchPatientModalTab('history')">📋 Medical History</button>
+  </div>
+
+  <!-- Pet Info -->
+  <div class="modal-section active" id="pmt-info">
+    <div class="field"><label>PET NAME *</label><input type="text" id="pm-name" placeholder="e.g. Bella"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <div class="field"><label>SPECIES</label>
+        <select id="pm-species">
+          <option value="dog">🐶 Dog</option>
+          <option value="cat">🐱 Cat</option>
+          <option value="other">🐾 Other</option>
+        </select>
+      </div>
+      <div class="field"><label>SEX</label>
+        <select id="pm-sex">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="male-n">Male (neutered)</option>
+          <option value="female-s">Female (spayed)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>BREED</label><input type="text" id="pm-breed" placeholder="e.g. German Shepherd"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <div class="field"><label>AGE</label><input type="text" id="pm-age" placeholder="e.g. 3 years"></div>
+      <div class="field"><label>WEIGHT (kg)</label><input type="number" id="pm-weight" placeholder="e.g. 5.5" step="0.1" min="0"></div>
+    </div>
+    <div class="field"><label>COLOR / MARKINGS</label><input type="text" id="pm-color" placeholder="e.g. Black & white, scar on left ear"></div>
+    <div class="field"><label>MICROCHIP NUMBER</label><input type="text" id="pm-chip" placeholder="e.g. 982000123456789" inputmode="numeric"></div>
+  </div>
+
+  <!-- Owner -->
+  <div class="modal-section" id="pmt-owner">
+    <div class="field">
+      <label>LINK TO EXISTING OWNER</label>
+      <select id="pm-owner-select" onchange="onOwnerSelectChange()">
+        <option value="">— New / No owner —</option>
+      </select>
+      <div style="margin-top:6px;font-size:11px;color:var(--muted)">Or fill in details below to create a new owner automatically</div>
+    </div>
+    <div id="pm-owner-details">
+      <div class="field"><label>OWNER NAME</label><input type="text" id="pm-owner-name" placeholder="e.g. Ahmed Hassan"></div>
+      <div class="field"><label>PHONE</label><input type="tel" id="pm-owner-phone" placeholder="e.g. 01012345678" inputmode="tel"></div>
+      <div class="field"><label>WHATSAPP</label><input type="tel" id="pm-owner-whatsapp" placeholder="Same as phone or different" inputmode="tel"></div>
+      <div class="field"><label>ADDRESS</label><textarea id="pm-owner-address" rows="2" style="resize:none" placeholder="e.g. 15 Tahrir St, Cairo"></textarea></div>
+      <div class="field"><label>OWNER NOTES</label><textarea id="pm-owner-notes" rows="2" style="resize:none" placeholder="Anything important about the owner..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- Medical History -->
+  <div class="modal-section" id="pmt-history">
+    <div class="field"><label>PREVIOUS DISEASES</label><textarea id="pm-prev-diseases" rows="2" style="resize:none" placeholder="e.g. Parvovirus (2022), skin allergies"></textarea></div>
+    <div class="field"><label>VACCINATION STATUS</label><textarea id="pm-vaccines" rows="2" style="resize:none" placeholder="e.g. Core vaccines up to date, last booster March 2024"></textarea></div>
+    <div class="field"><label>CURRENT MEDICATIONS</label><textarea id="pm-current-meds" rows="2" style="resize:none" placeholder="e.g. Phenobarbitone 30mg BID (epilepsy)"></textarea></div>
+    <div class="field"><label>ALLERGIES</label><input type="text" id="pm-allergies" placeholder="e.g. Penicillin, sulfonamides"></div>
+  </div>
+
+  <button class="btn btn-primary" style="margin-top:14px;margin-bottom:10px" onclick="savePatient()">Save Patient</button>
+  <button class="btn btn-secondary" onclick="document.getElementById('patient-modal').classList.remove('show')">Cancel</button>
+</div>
+</div>
+
+
+<!-- ═══ OWNER MODAL ═══ -->
+<div class="modal-overlay" id="owner-modal" onclick="this.classList.remove('show')">
+<div class="modal" onclick="event.stopPropagation()" style="padding-bottom:40px">
+  <div class="modal-handle"></div>
+  <div class="modal-title" id="owner-modal-title">New Owner</div>
+  <div class="field"><label>OWNER NAME *</label><input type="text" id="om-name" placeholder="e.g. Ahmed Hassan"></div>
+  <div class="field"><label>PHONE</label><input type="tel" id="om-phone" placeholder="e.g. 01012345678" inputmode="tel"></div>
+  <div class="field"><label>WHATSAPP</label><input type="tel" id="om-whatsapp" placeholder="Same as phone or different" inputmode="tel"></div>
+  <div class="field"><label>ADDRESS</label><textarea id="om-address" rows="2" style="resize:none" placeholder="e.g. 15 Tahrir St, Cairo"></textarea></div>
+  <div class="field"><label>NOTES</label><textarea id="om-notes" rows="2" style="resize:none" placeholder="Any important notes about this owner..."></textarea></div>
+  <button class="btn btn-primary" style="margin-top:14px;margin-bottom:10px" onclick="saveOwner()">Save Owner</button>
+  <button class="btn btn-secondary" onclick="document.getElementById('owner-modal').classList.remove('show')">Cancel</button>
+</div>
+</div>
+
+<!-- ═══ NEW VISIT MODAL ═══ -->
+<div class="modal-overlay" id="visit-modal" onclick="this.classList.remove('show')">
+<div class="modal" onclick="event.stopPropagation()" style="padding-bottom:40px">
+  <div class="modal-handle"></div>
+  <div class="modal-title" id="visit-modal-title">New Visit</div>
+
+  <div class="modal-tabs">
+    <button class="modal-tab active" onclick="switchVisitModalTab('basics')">📋 Visit</button>
+    <button class="modal-tab" onclick="switchVisitModalTab('soap')">🩺 SOAP</button>
+    <button class="modal-tab" onclick="switchVisitModalTab('plan')">💊 Plan</button>
+    <button class="modal-tab" onclick="switchVisitModalTab('vaccines')">💉 Vaccines</button>
+    <button class="modal-tab" onclick="switchVisitModalTab('followup')">📅 Follow-up</button>
+  </div>
+
+  <!-- Visit basics -->
+  <div class="modal-section active" id="vmt-basics">
+    <div class="field"><label>DATE</label><input type="date" id="vm-date"></div>
+    <div class="field"><label>CHIEF COMPLAINT</label><input type="text" id="vm-complaint" placeholder="e.g. Vomiting for 2 days"></div>
+    <div class="field"><label>HISTORY</label><textarea id="vm-history" rows="3" style="resize:none" placeholder="Relevant history, onset, previous treatment..."></textarea></div>
+    <div class="field"><label>PHYSICAL EXAMINATION</label><textarea id="vm-exam" rows="3" style="resize:none" placeholder="General condition, findings per system..."></textarea></div>
+    <div class="field"><label>DIFFERENTIAL DIAGNOSES</label><input type="text" id="vm-differentials" placeholder="e.g. Parvovirus, dietary indiscretion, intussusception"></div>
+    <div class="field"><label>FINAL DIAGNOSIS</label><input type="text" id="vm-diagnosis" placeholder="e.g. Acute gastroenteritis"></div>
+  </div>
+
+  <!-- SOAP -->
+  <div class="modal-section" id="vmt-soap">
+    <div class="soap-section">
+      <div class="soap-label">S — Subjective (symptoms)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-vomiting" style="width:15px;height:15px;accent-color:var(--accent2)"> Vomiting
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-diarrhea" style="width:15px;height:15px;accent-color:var(--accent2)"> Diarrhea
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-anorexia" style="width:15px;height:15px;accent-color:var(--accent2)"> Anorexia
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-lethargy" style="width:15px;height:15px;accent-color:var(--accent2)"> Lethargy
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-cough" style="width:15px;height:15px;accent-color:var(--accent2)"> Coughing
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-dyspnea" style="width:15px;height:15px;accent-color:var(--accent2)"> Dyspnea
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-polyuria" style="width:15px;height:15px;accent-color:var(--accent2)"> Polyuria/PD
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:8px 11px;border-radius:8px;cursor:pointer">
+          <input type="checkbox" id="s-seizure" style="width:15px;height:15px;accent-color:var(--accent2)"> Seizures
+        </label>
+      </div>
+      <div class="field"><label>DURATION</label><input type="text" id="s-duration" placeholder="e.g. 3 days"></div>
+    </div>
+    <div class="soap-section">
+      <div class="soap-label">O — Objective (vitals)</div>
+
+      <div class="field">
+        <label>TEMPERATURE</label>
+        <div class="vital-qs" id="qs-temp">
+          <button class="vqs-btn normal" onclick="setVital('o-temp','38.5',this)">Normal<br><span style="font-size:9px;font-weight:400">38-39°C</span></button>
+          <button class="vqs-btn mild" onclick="setVital('o-temp','39.5',this)">Mild<br><span style="font-size:9px;font-weight:400">39-40°C</span></button>
+          <button class="vqs-btn mod" onclick="setVital('o-temp','40.5',this)">Moderate<br><span style="font-size:9px;font-weight:400">40-41°C</span></button>
+          <button class="vqs-btn sev" onclick="setVital('o-temp','41.5',this)">Severe<br><span style="font-size:9px;font-weight:400">&gt;41°C</span></button>
+        </div>
+        <input type="number" id="o-temp" placeholder="or type exact °C" step="0.1" min="35" max="43" inputmode="decimal" style="margin-top:6px" oninput="clearVitalQS('qs-temp')">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="field">
+          <label>HEART RATE</label>
+          <div class="vital-qs">
+            <button class="vqs-btn normal" onclick="setVital('o-hr','90',this)">Normal</button>
+            <button class="vqs-btn mild" onclick="setVital('o-hr','130',this)">Tachy</button>
+            <button class="vqs-btn sev" onclick="setVital('o-hr','50',this)">Brady</button>
+          </div>
+          <input type="number" id="o-hr" placeholder="bpm" inputmode="numeric" style="margin-top:6px" oninput="clearVitalQS(this.closest('.field').querySelector('.vital-qs'))">
+        </div>
+        <div class="field">
+          <label>RESP. RATE</label>
+          <div class="vital-qs">
+            <button class="vqs-btn normal" onclick="setVital('o-rr','20',this)">Normal</button>
+            <button class="vqs-btn mild" onclick="setVital('o-rr','35',this)">Mild↑</button>
+            <button class="vqs-btn sev" onclick="setVital('o-rr','55',this)">Dyspnea</button>
+          </div>
+          <input type="number" id="o-rr" placeholder="/min" inputmode="numeric" style="margin-top:6px" oninput="clearVitalQS(this.closest('.field').querySelector('.vital-qs'))">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>WEIGHT (kg)</label>
+        <input type="number" id="o-weight" placeholder="e.g. 6.2" step="0.1" min="0" inputmode="decimal">
+      </div>
+
+      <div class="field">
+        <label>CRT</label>
+        <div class="vital-qs" id="qs-crt">
+          <button class="vqs-btn normal" onclick="setVital('o-crt','&lt;2s',this)">Normal<br><span style="font-size:9px;font-weight:400">&lt;2s</span></button>
+          <button class="vqs-btn mild" onclick="setVital('o-crt','2-3s',this)">Mild<br><span style="font-size:9px;font-weight:400">2-3s</span></button>
+          <button class="vqs-btn sev" onclick="setVital('o-crt','&gt;3s',this)">Severe<br><span style="font-size:9px;font-weight:400">&gt;3s</span></button>
+        </div>
+        <input type="text" id="o-crt" placeholder="or type" style="margin-top:6px" oninput="clearVitalQS('qs-crt')">
+      </div>
+
+      <div class="field">
+        <label>HYDRATION</label>
+        <div class="vital-qs" id="qs-hydration">
+          <button class="vqs-btn normal" onclick="setVital('o-hydration','Normal',this)">Normal</button>
+          <button class="vqs-btn mild" onclick="setVital('o-hydration','Mild 5%',this)">Mild 5%</button>
+          <button class="vqs-btn mod" onclick="setVital('o-hydration','Moderate 8%',this)">Mod 8%</button>
+          <button class="vqs-btn sev" onclick="setVital('o-hydration','Severe 10%+',this)">Severe 10%+</button>
+        </div>
+        <input type="hidden" id="o-hydration" value="">
+      </div>
+
+      <div class="field">
+        <label>MUCOUS MEMBRANES</label>
+        <div class="vital-qs" id="qs-mm">
+          <button class="vqs-btn normal" onclick="setVital('o-mm','Pink moist',this)">Pink moist</button>
+          <button class="vqs-btn mild" onclick="setVital('o-mm','Pale',this)">Pale</button>
+          <button class="vqs-btn mod" onclick="setVital('o-mm','Tacky/dry',this)">Tacky/dry</button>
+          <button class="vqs-btn sev" onclick="setVital('o-mm','Cyanotic',this)">Cyanotic</button>
+        </div>
+        <input type="hidden" id="o-mm" value="">
+      </div>
+
+      <div class="field">
+        <label>BCS (1-9)</label>
+        <div class="vital-qs" id="qs-bcs">
+          <button class="vqs-btn sev" onclick="setVital('o-bcs','1-2 (Emaciated)',this)">1-2<br><span style="font-size:9px;font-weight:400">Emaciated</span></button>
+          <button class="vqs-btn mild" onclick="setVital('o-bcs','3-4 (Thin)',this)">3-4<br><span style="font-size:9px;font-weight:400">Thin</span></button>
+          <button class="vqs-btn normal" onclick="setVital('o-bcs','5 (Ideal)',this)">5<br><span style="font-size:9px;font-weight:400">Ideal</span></button>
+          <button class="vqs-btn mild" onclick="setVital('o-bcs','6-7 (Overweight)',this)">6-7<br><span style="font-size:9px;font-weight:400">Overweight</span></button>
+          <button class="vqs-btn mod" onclick="setVital('o-bcs','8-9 (Obese)',this)">8-9<br><span style="font-size:9px;font-weight:400">Obese</span></button>
+        </div>
+        <input type="hidden" id="o-bcs" value="">
+      </div>
+    </div>
+    <div class="soap-section">
+      <div class="soap-label">A — Assessment</div>
+      <div class="field"><label>DIFFERENTIALS</label><input type="text" id="a-differentials" placeholder="e.g. Parvovirus, dietary indiscretion"></div>
+      <div class="field"><label>DIAGNOSIS</label><input type="text" id="a-diagnosis" placeholder="e.g. Acute gastroenteritis"></div>
+    </div>
+  </div>
+
+  <!-- Plan -->
+  <div class="modal-section" id="vmt-plan">
+    <div class="soap-label" style="margin-bottom:9px">P — Plan</div>
+    <div class="field"><label>DRUGS / TREATMENT</label><textarea id="p-drugs" rows="3" style="resize:none" placeholder="e.g. Amoxicillin 20mg/kg BID × 7 days, Metronidazole 15mg/kg BID × 5 days"></textarea></div>
+    <button class="rx-print-btn" type="button" onclick="previewAndPrintRx()">🖨 Preview & Print Prescription</button>
+    <div class="field"><label>FLUIDS</label><input type="text" id="p-fluids" placeholder="e.g. Lactated Ringer 10ml/kg/hr IV × 4hr"></div>
+    <div class="field"><label>DIAGNOSTICS ORDERED</label><input type="text" id="p-diagnostics" placeholder="e.g. CBC, biochem, parvo snap test, X-ray"></div>
+    <div class="field"><label>TREATMENT NOTES</label><textarea id="vm-treatment" rows="2" style="resize:none" placeholder="Additional treatment instructions..."></textarea></div>
+    <div class="field"><label>FOLLOW-UP INSTRUCTIONS (given to owner)</label><textarea id="vm-followup-instr" rows="2" style="resize:none" placeholder="e.g. Continue fluids at home, recheck in 5 days if not improving"></textarea></div>
+  </div>
+
+  <!-- Vaccines -->
+  <div class="modal-section" id="vmt-vaccines">
+    <div class="soap-label" style="margin-bottom:9px">💉 Vaccination Record</div>
+    <div id="vacc-rows">
+      <!-- Rendered by JS -->
+    </div>
+    <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addVaccineRow()">+ Add Vaccine</button>
+  </div>
+
+  <!-- Follow-up scheduling -->
+  <div class="modal-section" id="vmt-followup">
+    <div class="soap-label" style="margin-bottom:9px">📅 Schedule Recheck</div>
+    <div class="field">
+      <label>RECHECK DATE</label>
+      <input type="date" id="vm-recheck-date">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
+        <button class="weight-preset-btn" onclick="setRecheckDays(1)" style="font-family:var(--sans)">+1d</button>
+        <button class="weight-preset-btn" onclick="setRecheckDays(3)" style="font-family:var(--sans)">+3d</button>
+        <button class="weight-preset-btn" onclick="setRecheckDays(7)" style="font-family:var(--sans)">+7d</button>
+        <button class="weight-preset-btn" onclick="setRecheckDays(14)" style="font-family:var(--sans)">+14d</button>
+        <button class="weight-preset-btn" onclick="setRecheckDays(30)" style="font-family:var(--sans)">+30d</button>
+      </div>
+    </div>
+    <div class="field"><label>REASON FOR RECHECK</label><input type="text" id="vm-recheck-reason" placeholder="e.g. Recheck otitis, suture removal, follow-up bloodwork"></div>
+  </div>
+
+  <button class="btn btn-primary" style="margin-top:14px;margin-bottom:10px" onclick="saveVisit()">Save Visit</button>
+  <button class="btn btn-secondary" onclick="document.getElementById('visit-modal').classList.remove('show')">Cancel</button>
+</div>
+</div>
+
+
 <!-- CUSTOM CONFIRM MODAL (replaces browser confirm() which is blocked on iOS) -->
 <div class="modal-overlay" id="confirm-modal" style="z-index:500">
   <div class="modal" style="padding-bottom:28px" onclick="event.stopPropagation()">
@@ -722,6 +1192,18 @@ let modalDrugContraReasons = {}; // { [drugId]: reason string }
 let db = null; // IndexedDB instance
 let usingIDB = false;
 let calcShowAll = false; // whether calc list is expanded
+
+// ─── V6 GLOBALS ──────────────────────────────────────────
+let owners = [];           // Owner objects
+let patientsView = 'patients'; // 'patients' | 'owners'
+let editingOwnerId = null;
+
+// GitHub Gist sync
+let ghToken = '';
+let ghGistId = '';
+let syncBusy = false;
+let lastSyncTime = null;
+const GIST_FILENAME = 'vetdose_data.json';
 
 // ─── MULTI-SESSION STATE ──────────────────────────────────
 // Each session: { id, label, patientId, drugIds:[] }
@@ -1208,11 +1690,22 @@ function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name)?.classList.add('active');
-  document.getElementById('nav-'+name)?.classList.add('active');
+  // patient-detail doesn't have its own nav item; highlight patients
+  if (name === 'patient-detail') {
+    document.getElementById('nav-patients')?.classList.add('active');
+  } else {
+    document.getElementById('nav-'+name)?.classList.add('active');
+  }
   if (name==='meds') renderMedList();
   if (name==='history') renderHistory();
   if (name==='calc') { renderCalcList(); renderSessionTabs(); }
   if (name==='settings') { updateStats(); loadSettingsUI(); renderLibraryCatTabs(); renderLibrary(); }
+  if (name==='patients') { renderPatientList(); renderFollowupBanner(); }
+  // Restore default header sub when leaving patient detail
+  if (name !== 'patient-detail') {
+    const headerSub = document.getElementById('header-version-sub');
+    if (headerSub) headerSub.textContent = 'Dosage Calculator v5.0';
+  }
 }
 
 function loadSettingsUI() {
@@ -1297,29 +1790,54 @@ function formatUnits(doseMg, unitSize) {
 
 // ─── PATIENT AUTOCOMPLETE ─────────────────────────────────
 function getKnownPatients() {
+  // Build from registered patients array first
+  const result = [];
+  const seen = new Set();
+  // Registered patients (preferred)
+  patients.forEach(p => {
+    seen.add(p.name.toLowerCase());
+    const histCount = calcHistory.filter(h => h.patientId && h.patientId.toLowerCase() === p.name.toLowerCase()).length;
+    result.push({ id: p.name, pid: p.id, count: histCount, registered: true, species: p.species, weight: p.weight });
+  });
+  // Also include any historical patient IDs not in the registered list
   const counts = {};
   calcHistory.forEach(h => {
     if (h.patientId) counts[h.patientId] = (counts[h.patientId]||0) + 1;
   });
-  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([id,count])=>({id,count}));
+  Object.entries(counts).forEach(([id, count]) => {
+    if (!seen.has(id.toLowerCase())) result.push({ id, pid: null, count, registered: false });
+  });
+  return result.sort((a,b) => {
+    if (a.registered && !b.registered) return -1;
+    if (!a.registered && b.registered) return 1;
+    return b.count - a.count;
+  });
 }
 
 let patientBlurTimer = null;
 
+function patientSuggItem(p) {
+  const sp = p.registered ? p.species : getPatientSpecies(p.id);
+  const icon = sp === 'dog' ? '🐶' : sp === 'cat' ? '🐱' : '🐾';
+  const badge = p.registered ? '<span style="font-size:9px;background:rgba(74,240,176,0.15);color:var(--accent);border:1px solid rgba(74,240,176,0.3);border-radius:4px;padding:1px 5px;margin-left:4px">REG</span>' : '';
+  const esc = p.id.replace(/'/g, "\'");
+  return `<div class="patient-suggestion-item" onmousedown="pickPatient('${esc}')">${icon} ${p.id}${badge}<span class="ps-count">${p.count} calc${p.count!==1?'s':''}</span></div>`;
+}
+
 function onPatientInput() {
   const q = document.getElementById('calc-patient-id').value.trim().toLowerCase();
   const sugg = document.getElementById('patient-suggestions');
-  if (!q) { sugg.classList.remove('open'); return; }
-  const patients = getKnownPatients().filter(p => p.id.toLowerCase().includes(q) && p.id.toLowerCase() !== q);
-  if (!patients.length) { sugg.classList.remove('open'); return; }
-  sugg.innerHTML = patients.slice(0,6).map(p => {
-    const sp = getPatientSpecies(p.id);
-    const icon = sp === 'dog' ? '🐶' : sp === 'cat' ? '🐱' : '🐾';
-    return `<div class="patient-suggestion-item" onmousedown="pickPatient('${p.id.replace(/'/g,"\\'")}')">
-      ${icon} ${p.id}
-      <span class="ps-count">${p.count} calc${p.count!==1?'s':''}</span>
-    </div>`;
-  }).join('');
+  // Clear banner if field emptied
+  if (!q) {
+    const banner = document.getElementById('calc-patient-banner');
+    if (banner) banner.innerHTML = '';
+    const saveBtn = document.getElementById('save-to-patient-btn');
+    if (saveBtn) saveBtn.style.display = 'none';
+    sugg.classList.remove('open'); return;
+  }
+  const list = getKnownPatients().filter(p => p.id.toLowerCase().includes(q) && p.id.toLowerCase() !== q);
+  if (!list.length) { sugg.classList.remove('open'); return; }
+  sugg.innerHTML = list.slice(0,8).map(patientSuggItem).join('');
   sugg.classList.add('open');
 }
 
@@ -1327,19 +1845,11 @@ function onPatientFocus() {
   clearTimeout(patientBlurTimer);
   const q = document.getElementById('calc-patient-id').value.trim();
   if (!q) {
-    // Show recent patients on focus if field is empty
-    const patients = getKnownPatients().slice(0,5);
-    if (!patients.length) return;
+    const list = getKnownPatients().slice(0,6);
+    if (!list.length) return;
     const sugg = document.getElementById('patient-suggestions');
-    sugg.innerHTML = `<div style="padding:7px 13px;font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Recent patients</div>` +
-      patients.map(p => {
-        const sp = getPatientSpecies(p.id);
-        const icon = sp === 'dog' ? '🐶' : sp === 'cat' ? '🐱' : '🐾';
-        return `<div class="patient-suggestion-item" onmousedown="pickPatient('${p.id.replace(/'/g,"\\'")}')">
-          ${icon} ${p.id}
-          <span class="ps-count">${p.count} calc${p.count!==1?'s':''}</span>
-        </div>`;
-      }).join('');
+    sugg.innerHTML = '<div style="padding:7px 13px;font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Registered / Recent patients</div>' +
+      list.map(patientSuggItem).join('');
     sugg.classList.add('open');
   }
 }
@@ -1356,26 +1866,79 @@ function pickPatient(id) {
   // Link session to this patient
   const s = activeSession(); if (s) { s.patientId = id; s.label = id; }
   renderSessionTabs();
-  // Derive species + last known weight from history
-  const records = calcHistory.filter(h => h.patientId === id);
-  const patSpecies = getPatientSpecies(id);
-  // Auto-fill weight from most recent record for this patient
-  if (records.length) {
-    const lastRecord = records[0]; // history is newest-first
-    const weightEl = document.getElementById('calc-weight');
-    if (lastRecord.weight && (!weightEl.value || parseFloat(weightEl.value) === 0)) {
-      weightEl.value = lastRecord.weight;
-    }
+
+  // Try registered patient first, then fall back to history
+  const regPat = patients.find(p => p.name.toLowerCase() === id.toLowerCase());
+  const records = calcHistory.filter(h => h.patientId && h.patientId.toLowerCase() === id.toLowerCase());
+  const patSpecies = regPat ? regPat.species : getPatientSpecies(id);
+
+  // Auto-fill weight: registered patient weight takes priority, else last history record
+  const weightEl = document.getElementById('calc-weight');
+  if (regPat && regPat.weight && (!weightEl.value || parseFloat(weightEl.value) === 0)) {
+    weightEl.value = regPat.weight;
+  } else if (records.length && (!weightEl.value || parseFloat(weightEl.value) === 0)) {
+    const lastRecord = records[0];
+    if (lastRecord.weight) weightEl.value = lastRecord.weight;
   }
-  // Pre-select species if we know this patient and a med is already selected
+
+  // Pre-select species
   if (patSpecies && selectedMed) {
     const btns = document.querySelectorAll('#calc-species-toggle .species-btn');
     btns.forEach(b => { if (b.classList.contains(patSpecies)) b.click(); });
   }
+
+  // Show patient info banner below patient field
+  renderCalcPatientBanner(regPat, records);
+
   // Update the patient field label with species icon
   const icon = patSpecies === 'dog' ? '🐶' : patSpecies === 'cat' ? '🐱' : '🐾';
   const label = document.getElementById('calc-patient-id').closest('.field')?.querySelector('label');
   if (label) label.textContent = `PATIENT ID / NAME  ${icon}`;
+}
+
+function renderCalcPatientBanner(regPat, records) {
+  let el = document.getElementById('calc-patient-banner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'calc-patient-banner';
+    const field = document.getElementById('calc-patient-id').closest('.field');
+    field.after(el);
+  }
+  if (!regPat) { el.innerHTML = ''; return; }
+
+  // Next follow-up
+  const next = getNextFollowup(regPat);
+  const today = new Date(); today.setHours(0,0,0,0);
+  let followupStr = '';
+  if (next && next.recheckDate) {
+    const d = new Date(next.recheckDate); d.setHours(0,0,0,0);
+    const overdue = d < today;
+    const dateStr = d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    followupStr = `<div style="margin-top:5px;font-size:11px;color:${overdue?'var(--danger)':'var(--warn)'}">
+      📅 ${overdue?'Overdue:':'Recheck:'} ${dateStr}${next.recheckReason?' — '+next.recheckReason:''}
+    </div>`;
+  }
+
+  // Last visit
+  const lastVisit = regPat.visits && regPat.visits.length ? regPat.visits[regPat.visits.length-1] : null;
+  const lastVisitStr = lastVisit ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">Last visit: ${new Date(lastVisit.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}${lastVisit.diagnosis?' — '+lastVisit.diagnosis:''}</div>` : '';
+
+  // Allergies warning
+  const allergyStr = regPat.allergies ? `<div style="margin-top:5px;font-size:11px;color:var(--danger);font-weight:700">⚠ ALLERGIES: ${regPat.allergies}</div>` : '';
+
+  el.innerHTML = `<div style="background:rgba(74,159,240,0.08);border:1px solid rgba(74,159,240,0.25);border-radius:9px;padding:9px 12px;margin-bottom:11px;cursor:pointer" onclick="openPatientDetail('${regPat.id}')">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">${regPat.species==='dog'?'🐶':regPat.species==='cat'?'🐱':'🐾'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700">${regPat.name} <span style="font-size:11px;color:var(--muted);font-weight:400">${[regPat.breed,regPat.age].filter(Boolean).join(', ')}</span></div>
+        ${regPat.currentMeds?`<div style="font-size:11px;color:var(--warn);margin-top:1px">💊 On: ${regPat.currentMeds}</div>`:''}
+        ${lastVisitStr}
+        ${allergyStr}
+        ${followupStr}
+      </div>
+      <span style="font-size:11px;color:var(--accent2);flex-shrink:0">View →</span>
+    </div>
+  </div>`;
 }
 
 // ─── CALCULATE PAGE ───────────────────────────────────────
@@ -1576,6 +2139,10 @@ function clearCalcForm() {
   clearCalcSelection();
   document.getElementById('calc-patient-id').value='';
   document.getElementById('calc-weight').value='';
+  const banner = document.getElementById('calc-patient-banner');
+  if (banner) banner.innerHTML = '';
+  const saveBtn = document.getElementById('save-to-patient-btn');
+  if (saveBtn) saveBtn.style.display = 'none';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1729,6 +2296,40 @@ function calculate() {
   });
   if (calcHistory.length > 500) calcHistory.length = 500;
   save();
+
+  // Show/hide "Save to Patient Record" button
+  const saveBtn = document.getElementById('save-to-patient-btn');
+  if (saveBtn) {
+    const pid = document.getElementById('calc-patient-id').value.trim();
+    const regPat = pid ? patients.find(p => p.name.toLowerCase() === pid.toLowerCase()) : null;
+    saveBtn.style.display = regPat ? '' : 'none';
+  }
+}
+
+function saveCalcToPatient() {
+  if (!selectedMed || !selectedRoute || !selectedCase) return toast('No result to save','error');
+  const pid = document.getElementById('calc-patient-id').value.trim();
+  const regPat = pid ? patients.find(p => p.name.toLowerCase() === pid.toLowerCase()) : null;
+  if (!regPat) return toast('Select a registered patient first','error');
+
+  const rawW = parseFloat(document.getElementById('calc-weight')?.value||'0');
+  const doseMg = (selectedCase.dose * rawW).toFixed(2);
+  const conc = selectedConc || selectedRoute.concentrations?.[0] || null;
+  const volMl = conc ? (selectedCase.dose * rawW / conc) : null;
+  const freq = selectedCase.freq || selectedRoute.freq || '';
+  const drugLine = `${selectedMed.name}${selectedMed.brand?' ('+selectedMed.brand+')':''} ${doseMg}mg (${selectedCase.dose}mg/kg × ${rawW}kg, ${selectedRoute.route})${volMl?' = '+volMl.toFixed(2)+'ml':''}${freq?' '+freq:''}`;
+
+  // Open visit modal pre-filled with the drug in the Plan section
+  currentVisitPatientId = regPat.id;
+  editingVisitId = null;
+  document.getElementById('visit-modal-title').textContent = 'New Visit — ' + regPat.name;
+  clearVisitModal();
+  setVal('vm-date', new Date().toISOString().slice(0,10));
+  setVal('p-drugs', drugLine);
+  setVal('o-weight', rawW.toString());
+  document.getElementById('visit-modal').classList.add('show');
+  switchVisitModalTab('plan');
+  toast('Pre-filled drug from calculation','success');
 }
 
 // ─── MED LIST PAGE ────────────────────────────────────────
@@ -2154,11 +2755,11 @@ function updateStats() {
 }
 
 function exportData() {
-  const data={version:SCHEMA_VERSION,meds,history:calcHistory,doctorName,exportedAt:new Date().toISOString()};
+  const data={version:SCHEMA_VERSION,meds,history:calcHistory,patients,doctorName,exportedAt:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download='vetdose-backup-v4.json'; a.click();
+  a.href=url; a.download='vetdose-backup-v5.json'; a.click();
   URL.revokeObjectURL(url);
   toast('✅ Backup exported');
 }
@@ -2173,7 +2774,8 @@ function importData(e) {
       meds=migrateV1ToV2(data.meds);
       calcHistory=data.history||[];
       doctorName=data.doctorName||'';
-      save(); updateStats(); renderMedList(); renderCalcList(); updateDoctorDisplay(); loadSettingsUI();
+      if(Array.isArray(data.patients)) patients=data.patients;
+      save(); savePatients(); updateStats(); renderMedList(); renderCalcList(); updateDoctorDisplay(); loadSettingsUI();
       toast('✅ Backup imported');
     } catch { toast('Invalid backup file','error'); }
   };
@@ -3450,6 +4052,1339 @@ function addCategoryFromLibrary() {
 }
 
 
+// ═══════════════════════════════════════════════════════════
+// PATIENTS MODULE — v5.0
+// ═══════════════════════════════════════════════════════════
+
+let patients = [];       // array of patient objects
+let patientFilter = 'all';
+let editingPatientId = null;
+let editingVisitId = null;
+let currentVisitPatientId = null;
+let patientModalTab = 'info';
+let visitModalTab = 'basics';
+
+// ─── PATIENT DATA SCHEMA ─────────────────────────────────
+// patient: { id, name, species, breed, sex, age, weight, color, chip,
+//            ownerName, ownerPhone, ownerAddress, ownerNotes,
+//            prevDiseases, vaccines, currentMeds, allergies,
+//            visits: [ visit ], createdAt }
+// visit:   { id, date, complaint, history, exam, differentials, diagnosis,
+//            treatment, followupInstr, recheckDate, recheckReason,
+//            soap: { s:{vomiting,diarrhea,anorexia,lethargy,cough,dyspnea,polyuria,seizure,duration},
+//                    o:{temp,hr,rr,weight,crt,hydration},
+//                    a:{differentials,diagnosis},
+//                    p:{drugs,fluids,diagnostics} },
+//            attachments: [], createdAt }
+
+// ─── PATIENT SAVE/LOAD (uses same IndexedDB store) ───────
+async function savePatients() {
+  if (usingIDB) {
+    await idbSet('vetdose_patients', patients);
+    await idbSet('vetdose_owners', owners);
+  } else {
+    try { localStorage.setItem('vetdose_patients', JSON.stringify(patients)); } catch(e) { toast('⚠️ Storage full!','warn'); }
+    try { localStorage.setItem('vetdose_owners', JSON.stringify(owners)); } catch(e) {}
+  }
+  // Trigger background Gist sync (debounced)
+  scheduleGistSync();
+}
+
+async function loadPatients() {
+  if (usingIDB) {
+    const pd = await idbGet('vetdose_patients');
+    patients = Array.isArray(pd) ? pd : [];
+    const od = await idbGet('vetdose_owners');
+    owners = Array.isArray(od) ? od : [];
+  } else {
+    try { const s = localStorage.getItem('vetdose_patients'); patients = s ? JSON.parse(s) : []; } catch(e) { patients=[]; }
+    try { const s = localStorage.getItem('vetdose_owners'); owners = s ? JSON.parse(s) : []; } catch(e) { owners=[]; }
+  }
+}
+
+// ─── PATIENT FILTER ──────────────────────────────────────
+function setPatientFilter(f) {
+  patientFilter = f;
+  document.querySelectorAll('[id^="pf-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('pf-'+f)?.classList.add('active');
+  renderPatientList();
+}
+
+// ─── RENDER PATIENT LIST ─────────────────────────────────
+function renderPatientList() {
+  const el = document.getElementById('patient-list');
+  if (!el) return;
+  const q = (document.getElementById('patients-search')?.value||'').trim().toLowerCase();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let list = patients.filter(p => {
+    if (q && !p.name.toLowerCase().includes(q) && !(p.ownerName||'').toLowerCase().includes(q) && !(p.breed||'').toLowerCase().includes(q)) return false;
+    if (patientFilter === 'dog' && p.species !== 'dog') return false;
+    if (patientFilter === 'cat' && p.species !== 'cat') return false;
+    if (patientFilter === 'followup') {
+      const due = getDueVisit(p);
+      if (!due) return false;
+    }
+    return true;
+  });
+
+  // Sort: overdue first, then alphabetical
+  list.sort((a,b) => {
+    const da = getDueVisit(a); const db2 = getDueVisit(b);
+    if (da && !db2) return -1; if (!da && db2) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">${patientFilter==='followup'?'📅':'🐾'}</div><div class="empty-text">${q?'No patients found':'No patients yet. Add your first patient!'}</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(p => renderPatientCard(p)).join('');
+
+  // Render follow-up banner
+  renderFollowupBanner();
+}
+
+function getDueVisit(p) {
+  if (!p.visits || !p.visits.length) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (const v of p.visits) {
+    if (v.recheckDate) {
+      const d = new Date(v.recheckDate); d.setHours(0,0,0,0);
+      if (d <= today) return v;
+    }
+  }
+  return null;
+}
+
+function getNextFollowup(p) {
+  if (!p.visits || !p.visits.length) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  let nearest = null;
+  for (const v of p.visits) {
+    if (v.recheckDate) {
+      const d = new Date(v.recheckDate); d.setHours(0,0,0,0);
+      if (!nearest || d < new Date(nearest.recheckDate)) nearest = v;
+    }
+  }
+  return nearest;
+}
+
+function renderPatientCard(p) {
+  const icon = p.species === 'dog' ? '🐶' : p.species === 'cat' ? '🐱' : '🐾';
+  const due = getDueVisit(p);
+  const lastVisit = p.visits && p.visits.length ? p.visits[p.visits.length-1] : null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  let followupTag = '';
+  if (due) {
+    const d = new Date(due.recheckDate); d.setHours(0,0,0,0);
+    const isToday = d.getTime() === today.getTime();
+    const isOverdue = d < today;
+    followupTag = `<span class="ptag followup ${isOverdue?'overdue':''}">
+      ${isOverdue ? '⚠ Overdue' : '📅 Due today'}: ${due.recheckReason||'Recheck'}
+    </span>`;
+  } else {
+    const next = getNextFollowup(p);
+    if (next) {
+      const dNext = new Date(next.recheckDate);
+      followupTag = `<span class="ptag followup">📅 ${dNext.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}: ${next.recheckReason||'Recheck'}</span>`;
+    }
+  }
+  return `
+  <div class="patient-card" onclick="openPatientDetail('${p.id}')">
+    <div class="patient-card-top">
+      <div class="patient-avatar ${p.species||'other'}">${icon}</div>
+      <div class="patient-info">
+        <div class="patient-name">${p.name}</div>
+        <div class="patient-breed">${[p.breed,p.sex?sexLabel(p.sex):'',p.age].filter(Boolean).join(' · ')}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="icon-btn edit" onclick="event.stopPropagation();openEditPatientModal('${p.id}')" title="Edit">✏️</button>
+        <button class="icon-btn del" onclick="event.stopPropagation();deletePatient('${p.id}')" title="Delete">🗑</button>
+      </div>
+    </div>
+    <div class="patient-tags">
+      ${(()=>{const o=p.ownerId?owners.find(x=>x.id===p.ownerId):null;return o?`<span class="ptag species">👤 ${o.name}</span>`:p.ownerName?`<span class="ptag species">👤 ${p.ownerName}</span>`:''})()}
+      ${p.visits && p.visits.length ? `<span class="ptag visits">📋 ${p.visits.length} visit${p.visits.length!==1?'s':''}</span>` : ''}
+      ${p.weight ? `<span class="ptag species">⚖️ ${p.weight}kg</span>` : ''}
+      ${followupTag}
+    </div>
+  </div>`;
+}
+
+function sexLabel(s) {
+  return {male:'M',female:'F','male-n':'MN','female-s':'FS'}[s]||s;
+}
+
+// ─── FOLLOW-UP BANNER ────────────────────────────────────
+function renderFollowupBanner() {
+  const el = document.getElementById('followup-banner-wrap');
+  if (!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = [];
+  patients.forEach(p => {
+    const v = getDueVisit(p);
+    if (v) due.push({ patient: p, visit: v });
+  });
+  if (!due.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="followup-banner">
+    <div class="followup-banner-title">📅 ${due.length} patient${due.length!==1?'s':''} due for follow-up</div>
+    ${due.map(({patient:p, visit:v}) => {
+      const d = new Date(v.recheckDate); d.setHours(0,0,0,0);
+      const isOverdue = d < today;
+      return `<div class="followup-item" onclick="openPatientDetail('${p.id}')">
+        <div>
+          <div class="followup-item-name">${p.name}</div>
+          <div class="followup-item-detail">${v.recheckReason||'Recheck'}</div>
+        </div>
+        ${isOverdue ? `<span class="overdue-badge">Overdue</span>` : `<span style="font-size:11px;color:var(--warn)">Today</span>`}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ─── PATIENT DETAIL ──────────────────────────────────────
+function openPatientDetail(pid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return;
+  const el = document.getElementById('patient-detail-content');
+  if (!el) return;
+
+  const icon = p.species === 'dog' ? '🐶' : p.species === 'cat' ? '🐱' : '🐾';
+  const visits = (p.visits||[]).slice().reverse();
+
+  el.innerHTML = `
+  <div class="patient-detail-header">
+    <div class="patient-detail-avatar ${p.species||'other'}" style="background:${p.species==='dog'?'rgba(74,159,240,0.18)':p.species==='cat'?'rgba(192,132,252,0.18)':'rgba(74,240,176,0.18)'}">${icon}</div>
+    <div>
+      <div style="font-size:20px;font-weight:800">${p.name}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">${[p.breed,p.age,p.weight?p.weight+'kg':''].filter(Boolean).join(' · ')}</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-left:auto">
+      <button class="btn btn-secondary btn-sm" onclick="printMedicalRecord('${p.id}')">🖨 PDF</button>
+      <button class="btn btn-secondary btn-sm" onclick="openEditPatientModal('${p.id}')">✏️ Edit</button>
+    </div>
+  </div>
+
+  <!-- Vaccine reminder banner -->
+  ${(()=>{
+    const vStatus = getPatientVaccineStatus(p);
+    const alerts = vStatus.filter(v => v.status === 'due' || v.status === 'soon');
+    if (!alerts.length) return '';
+    return `<div class="followup-banner" style="margin-bottom:10px">
+      <div class="followup-banner-title">💉 Vaccination Reminders</div>
+      ${alerts.map(v => `<div class="followup-item">
+        <div><div class="followup-item-name">${v.name}</div><div class="followup-item-detail">${v.status==='due'?'Overdue!':'Due in '+v.daysLeft+' days'}</div></div>
+        <span class="${v.status==='due'?'overdue-badge':'vacc-badge soon'}">${v.status==='due'?'Overdue':'Soon'}</span>
+      </div>`).join('')}
+    </div>`;
+  })()}
+
+  <!-- Quick info cards -->
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">Patient Info</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+      ${infoRow('Species', p.species ? (p.species==='dog'?'🐶 Dog':p.species==='cat'?'🐱 Cat':'🐾 Other') : '—')}
+      ${infoRow('Sex', p.sex ? {male:'Male',female:'Female','male-n':'Male (neutered)','female-s':'Female (spayed)'}[p.sex]||p.sex : '—')}
+      ${infoRow('Breed', p.breed||'—')}
+      ${infoRow('Age', p.age||'—')}
+      ${infoRow('Weight', p.weight ? p.weight+' kg' : '—')}
+      ${infoRow('Color', p.color||'—')}
+      ${p.chip ? infoRow('Microchip', p.chip) : ''}
+    </div>
+  </div>
+
+  ${p.ownerName||p.ownerPhone ? `<div class="card" style="margin-bottom:10px">
+    <div class="card-title">Owner Info</div>
+    <div style="font-size:13px">
+      ${p.ownerName ? `<div style="font-weight:700;margin-bottom:4px">👤 ${p.ownerName}</div>` : ''}
+      ${p.ownerPhone ? `<div style="color:var(--accent2);margin-bottom:3px">📞 <a href="tel:${p.ownerPhone}" style="color:var(--accent2);text-decoration:none">${p.ownerPhone}</a></div>` : ''}
+      ${p.ownerAddress ? `<div style="color:var(--muted);font-size:12px">📍 ${p.ownerAddress}</div>` : ''}
+      ${p.ownerNotes ? `<div style="color:var(--muted);font-size:12px;margin-top:6px">${p.ownerNotes}</div>` : ''}
+    </div>
+  </div>` : ''}
+
+  ${p.prevDiseases||p.vaccines||p.currentMeds||p.allergies ? `<div class="card" style="margin-bottom:10px">
+    <div class="card-title">Medical History</div>
+    <div style="font-size:13px;display:flex;flex-direction:column;gap:7px">
+      ${p.allergies ? `<div><span style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--danger)">ALLERGIES</span><div style="margin-top:3px;color:var(--danger)">${p.allergies}</div></div>` : ''}
+      ${p.prevDiseases ? `<div><span style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted)">PREVIOUS DISEASES</span><div style="margin-top:3px">${p.prevDiseases}</div></div>` : ''}
+      ${p.vaccines ? `<div><span style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted)">VACCINATION</span><div style="margin-top:3px">${p.vaccines}</div></div>` : ''}
+      ${p.currentMeds ? `<div><span style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--warn)">CURRENT MEDS</span><div style="margin-top:3px">${p.currentMeds}</div></div>` : ''}
+    </div>
+  </div>` : ''}
+
+  <!-- VISITS -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-size:15px;font-weight:800">Visit Records <span style="font-size:13px;color:var(--muted);font-weight:500">(${visits.length})</span></div>
+    <button class="btn btn-primary btn-sm" onclick="openNewVisitModal('${p.id}')">+ New Visit</button>
+  </div>
+  ${visits.length ? visits.map(v => renderVisitCard(v, p.id)).join('') : `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No visits yet. Add the first visit.</div></div>`}
+
+  <!-- DRUG CALCULATION HISTORY FOR THIS PATIENT -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px">
+    <div style="font-size:15px;font-weight:800">Drug Calculations <span style="font-size:13px;color:var(--muted);font-weight:500">(from Calculator)</span></div>
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('calc-patient-id').value='${p.name}';pickPatient('${p.name}');showPage('calc')">+ Calculate</button>
+  </div>
+  ${(()=>{
+    const patCalcs = calcHistory.filter(h => h.patientId && h.patientId.toLowerCase() === p.name.toLowerCase());
+    if (!patCalcs.length) return `<div class="empty" style="padding:20px"><div class="empty-icon">💊</div><div class="empty-text">No calculations yet. Tap "+ Calculate" to go to the Calculator with ${p.name} pre-selected.</div></div>`;
+    // Group by drug name, show last 20 unique entries
+    return `<div style="display:flex;flex-direction:column;gap:7px">` + patCalcs.slice(0,20).map(h => {
+      const d = new Date(h.time).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+      const t = new Date(h.time).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      const sp = h.species==='dog'?'🐶':'🐱';
+      // Look up drug in library for extra info
+      const libDrug = meds.find(m => m.name === h.drug);
+      const contraStr = libDrug && libDrug.contraindications && libDrug.contraindications.length
+        ? `<div style="font-size:11px;color:var(--danger);margin-top:3px">⚠ ${libDrug.contraindications.slice(0,2).join(', ')}</div>` : '';
+      return `<div class="visit-card" style="padding:11px 13px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700">${sp} ${h.drug}</div>
+            <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">${d} · ${t}</div>
+            ${h.caseLabel&&h.caseLabel!=='Standard'?`<div style="font-size:11px;color:var(--muted);margin-top:2px">📋 ${h.caseLabel}</div>`:''}
+            ${contraStr}
+          </div>
+          <div style="text-align:right;flex-shrink:0;margin-left:8px">
+            <div style="font-size:16px;font-weight:800;color:var(--accent);font-family:var(--mono)">${h.dose.toFixed(2)} mg</div>
+            ${h.volDisplay?`<div style="font-size:12px;color:var(--accent2);font-family:var(--mono)">${h.volDisplay}</div>`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+          <span class="soap-chip o">${h.route}</span>
+          <span class="soap-chip s">${h.weight} kg</span>
+          ${h.freq?`<span class="soap-chip a">${h.freq}</span>`:''}
+          ${h.doctorName?`<span class="soap-chip p">Dr. ${h.doctorName}</span>`:''}
+        </div>
+      </div>`;
+    }).join('') + `</div>`;
+  })()}
+  `;
+
+  // Update page header
+  const headerSub = document.getElementById('header-version-sub');
+  if (headerSub) headerSub.textContent = p.name + ' · ' + (p.species||'');
+
+  showPage('patient-detail');
+}
+
+function infoRow(label, val) {
+  return `<div style="background:var(--surface2);border-radius:7px;padding:8px 9px"><div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.5px">${label.toUpperCase()}</div><div style="font-weight:600;margin-top:2px">${val}</div></div>`;
+}
+
+function renderVisitCard(v, pid) {
+  const date = v.date ? new Date(v.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No date';
+  const s = v.soap?.s || {};
+  const o = v.soap?.o || {};
+  const a = v.soap?.a || {};
+  const p2 = v.soap?.p || {};
+  const symptoms = [s.vomiting&&'Vomiting',s.diarrhea&&'Diarrhea',s.anorexia&&'Anorexia',s.lethargy&&'Lethargy',s.cough&&'Coughing',s.dyspnea&&'Dyspnea',s.polyuria&&'Polyuria/PD',s.seizure&&'Seizures'].filter(Boolean);
+  const hasVitals = o.temp||o.hr||o.rr||o.weight||o.crt||o.hydration;
+  const recheckDate = v.recheckDate ? new Date(v.recheckDate).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const recheckDue = v.recheckDate && new Date(v.recheckDate) <= today;
+  const diag = v.diagnosis || a.diagnosis || '';
+  const diffs = v.differentials || a.differentials || '';
+  const drugs = p2.drugs || v.treatment || '';
+  const fluids = p2.fluids || '';
+  const diagnostics = p2.diagnostics || '';
+
+  // Collapsible: show summary row, expand on click
+  const cardId = 'vc-' + v.id;
+
+  return `<div class="visit-card" id="${cardId}">
+    <!-- HEADER always visible -->
+    <div class="visit-header" onclick="toggleVisitCard('${v.id}')" style="cursor:pointer">
+      <div style="flex:1;min-width:0">
+        <div class="visit-date">${date}</div>
+        <div class="visit-complaint">${v.complaint || 'Visit'}</div>
+        ${diag ? `<div class="visit-diag">Dx: ${diag}</div>` : ''}
+        ${symptoms.length ? `<div class="soap-row" style="margin-top:5px">${symptoms.slice(0,4).map(sym=>`<span class="soap-chip s">${sym}</span>`).join('')}${symptoms.length>4?`<span style="font-size:11px;color:var(--muted)">+${symptoms.length-4} more</span>`:''}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+        <div style="display:flex;gap:5px">
+          <button class="icon-btn edit" onclick="event.stopPropagation();openEditVisitModal('${pid}','${v.id}')" title="Edit">✏️</button>
+          <button class="icon-btn del" onclick="event.stopPropagation();deleteVisit('${pid}','${v.id}')" title="Delete">🗑</button>
+        </div>
+        <span id="vc-arrow-${v.id}" style="font-size:11px;color:var(--muted)">▼ details</span>
+      </div>
+    </div>
+
+    <!-- BODY collapsible -->
+    <div id="vc-body-${v.id}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+
+      ${v.history ? `<div class="soap-section"><div class="soap-label">S — History / Subjective</div>
+        ${symptoms.length ? `<div class="soap-row" style="margin-bottom:6px">${symptoms.map(sym=>`<span class="soap-chip s">${sym}</span>`).join('')}${s.duration?`<span style="font-size:11px;color:var(--muted);align-self:center"> · ${s.duration}</span>`:''}</div>` : ''}
+        <div style="font-size:13px;color:var(--text);line-height:1.5">${v.history}</div>
+      </div>` : (symptoms.length ? `<div class="soap-section"><div class="soap-label">S — Symptoms</div>
+        <div class="soap-row">${symptoms.map(sym=>`<span class="soap-chip s">${sym}</span>`).join('')}${s.duration?`<span style="font-size:11px;color:var(--muted);align-self:center"> · ${s.duration}</span>`:''}</div>
+      </div>` : '')}
+
+      ${v.exam ? `<div class="soap-section"><div class="soap-label">O — Physical Examination</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.5">${v.exam}</div>
+      </div>` : ''}
+
+      ${hasVitals ? `<div class="soap-section"><div class="soap-label">O — Vitals</div>
+        <div class="vital-grid">
+          ${o.temp   ? `<div class="vital-item"><div class="vital-label">TEMP</div><div class="vital-val ${parseFloat(o.temp)>39.5?'overdue':''}">${o.temp}°C</div></div>` : ''}
+          ${o.hr     ? `<div class="vital-item"><div class="vital-label">HR</div><div class="vital-val">${o.hr} bpm</div></div>` : ''}
+          ${o.rr     ? `<div class="vital-item"><div class="vital-label">RR</div><div class="vital-val">${o.rr}/min</div></div>` : ''}
+          ${o.weight ? `<div class="vital-item"><div class="vital-label">WEIGHT</div><div class="vital-val">${o.weight} kg</div></div>` : ''}
+          ${o.crt    ? `<div class="vital-item"><div class="vital-label">CRT</div><div class="vital-val">${o.crt}</div></div>` : ''}
+          ${o.hydration?`<div class="vital-item"><div class="vital-label">HYDRATION</div><div class="vital-val">${o.hydration}</div></div>` : ''}
+        </div>
+      </div>` : ''}
+
+      ${(diffs||diag) ? `<div class="soap-section"><div class="soap-label">A — Assessment</div>
+        ${diffs ? `<div style="font-size:12px;color:var(--muted);margin-bottom:3px">DDx: ${diffs}</div>` : ''}
+        ${diag  ? `<div style="font-size:13px;font-weight:700;color:var(--warn)">✅ Dx: ${diag}</div>` : ''}
+      </div>` : ''}
+
+      ${(drugs||fluids||diagnostics||v.followupInstr) ? `<div class="soap-section"><div class="soap-label">P — Plan</div>
+        ${drugs      ? `<div style="font-size:12px;margin-bottom:5px"><span style="color:var(--cat);font-weight:700">💊 Drugs: </span>${drugs}</div>` : ''}
+        ${fluids     ? `<div style="font-size:12px;margin-bottom:5px"><span style="color:var(--accent2);font-weight:700">💉 Fluids: </span>${fluids}</div>` : ''}
+        ${diagnostics? `<div style="font-size:12px;margin-bottom:5px"><span style="color:var(--accent);font-weight:700">🔬 Diagnostics: </span>${diagnostics}</div>` : ''}
+        ${v.followupInstr?`<div style="font-size:12px;color:var(--muted)">📋 Instructions: ${v.followupInstr}</div>` : ''}
+      </div>` : ''}
+
+      ${recheckDate ? `<div style="padding:7px 11px;background:${recheckDue?'rgba(240,74,106,0.1)':'rgba(240,168,74,0.1)'};border-radius:8px;font-size:12px;color:${recheckDue?'var(--danger)':'var(--warn)'};font-weight:700">
+        📅 Recheck: ${recheckDate}${v.recheckReason?' — '+v.recheckReason:''}${recheckDue?' ⚠ DUE':''}
+      </div>` : ''}
+
+      ${v.attachments&&v.attachments.length ? `<div class="attach-row" style="margin-top:8px">${v.attachments.map(att=>`<span class="attach-chip"><span class="attach-icon">${attachIcon(att.type)}</span>${att.name}</span>`).join('')}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function toggleVisitCard(vid) {
+  const body = document.getElementById('vc-body-'+vid);
+  const arrow = document.getElementById('vc-arrow-'+vid);
+  if (!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if (arrow) arrow.textContent = open ? '▼ details' : '▲ hide';
+}
+
+function attachIcon(t) {
+  if (!t) return '📎';
+  if (t.startsWith('image')) return '🖼';
+  if (t.includes('pdf')) return '📄';
+  return '📎';
+}
+
+// ─── PATIENT MODAL ───────────────────────────────────────
+function openNewPatientModal() {
+  editingPatientId = null;
+  document.getElementById('patient-modal-title').textContent = 'New Patient';
+  clearPatientModal();
+  // Default date for this visit
+  document.getElementById('patient-modal').classList.add('show');
+  switchPatientModalTab('info');
+}
+
+function openEditPatientModal(pid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return;
+  editingPatientId = pid;
+  document.getElementById('patient-modal-title').textContent = 'Edit Patient';
+  // Fill fields
+  setVal('pm-name', p.name||'');
+  setVal('pm-species', p.species||'dog');
+  setVal('pm-sex', p.sex||'male');
+  setVal('pm-breed', p.breed||'');
+  setVal('pm-age', p.age||'');
+  setVal('pm-weight', p.weight||'');
+  setVal('pm-color', p.color||'');
+  setVal('pm-chip', p.chip||'');
+  setVal('pm-owner-name', p.ownerName||'');
+  setVal('pm-owner-phone', p.ownerPhone||'');
+  setVal('pm-owner-address', p.ownerAddress||'');
+  setVal('pm-owner-notes', p.ownerNotes||'');
+  setVal('pm-prev-diseases', p.prevDiseases||'');
+  setVal('pm-vaccines', p.vaccines||'');
+  setVal('pm-current-meds', p.currentMeds||'');
+  setVal('pm-allergies', p.allergies||'');
+  document.getElementById('patient-modal').classList.add('show');
+  switchPatientModalTab('info');
+}
+
+function clearPatientModal() {
+  ['pm-name','pm-breed','pm-age','pm-weight','pm-color','pm-chip',
+   'pm-owner-name','pm-owner-phone','pm-owner-address','pm-owner-notes',
+   'pm-prev-diseases','pm-vaccines','pm-current-meds','pm-allergies'].forEach(id => setVal(id,''));
+  setVal('pm-species','dog'); setVal('pm-sex','male');
+}
+
+function switchPatientModalTab(tab) {
+  patientModalTab = tab;
+  document.querySelectorAll('#patient-modal .modal-tab').forEach((b,i) => {
+    const tabs = ['info','owner','history'];
+    b.classList.toggle('active', tabs[i]===tab);
+  });
+  document.querySelectorAll('#patient-modal .modal-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('pmt-'+tab)?.classList.add('active');
+}
+
+function savePatient() {
+  const name = gv('pm-name').trim();
+  if (!name) { toast('Please enter the pet name', 'error'); return; }
+  const selectedOwnerId = document.getElementById('pm-owner-select')?.value || null;
+  const p = {
+    id: editingPatientId || uid(),
+    name, species: gv('pm-species'), sex: gv('pm-sex'),
+    breed: gv('pm-breed'), age: gv('pm-age'),
+    ownerId: selectedOwnerId || null,
+    weight: gv('pm-weight') ? parseFloat(gv('pm-weight')) : null,
+    color: gv('pm-color'), chip: gv('pm-chip'),
+    ownerName: gv('pm-owner-name'), ownerPhone: gv('pm-owner-phone'),
+    ownerAddress: gv('pm-owner-address'), ownerNotes: gv('pm-owner-notes'),
+    prevDiseases: gv('pm-prev-diseases'), vaccines: gv('pm-vaccines'),
+    currentMeds: gv('pm-current-meds'), allergies: gv('pm-allergies'),
+    visits: [], createdAt: new Date().toISOString()
+  };
+  if (editingPatientId) {
+    const existing = patients.find(x => x.id === editingPatientId);
+    if (existing) { p.visits = existing.visits || []; p.createdAt = existing.createdAt; }
+    const idx = patients.findIndex(x => x.id === editingPatientId);
+    if (idx >= 0) patients[idx] = p; else patients.push(p);
+    toast('✅ Patient updated');
+  } else {
+    patients.push(p);
+    toast('✅ Patient added');
+  }
+  savePatients();
+  document.getElementById('patient-modal').classList.remove('show');
+  renderPatientList();
+  if (document.getElementById('page-patient-detail').classList.contains('active')) {
+    openPatientDetail(p.id);
+  }
+}
+
+async function deletePatient(pid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return;
+  const ok = await confirmDialog('Delete Patient', `Delete ${p.name} and all their records? This cannot be undone.`, '🗑 Delete');
+  if (!ok) return;
+  patients = patients.filter(x => x.id !== pid);
+  savePatients();
+  renderPatientList();
+  if (document.getElementById('page-patient-detail').classList.contains('active')) showPage('patients');
+  toast('Patient deleted', 'warn');
+}
+
+// ─── VISIT MODAL ─────────────────────────────────────────
+function openNewVisitModal(pid) {
+  currentVisitPatientId = pid;
+  editingVisitId = null;
+  document.getElementById('visit-modal-title').textContent = 'New Visit';
+  clearVisitModal();
+  // Default today
+  const today = new Date().toISOString().slice(0,10);
+  setVal('vm-date', today);
+  document.getElementById('visit-modal').classList.add('show');
+  switchVisitModalTab('basics');
+}
+
+function openEditVisitModal(pid, vid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return;
+  const v = (p.visits||[]).find(x => x.id === vid);
+  if (!v) return;
+  currentVisitPatientId = pid;
+  editingVisitId = vid;
+  document.getElementById('visit-modal-title').textContent = 'Edit Visit';
+  clearVisitModal();
+  // Fill basics
+  setVal('vm-date', v.date||'');
+  setVal('vm-complaint', v.complaint||'');
+  setVal('vm-history', v.history||'');
+  setVal('vm-exam', v.exam||'');
+  setVal('vm-differentials', v.differentials||'');
+  setVal('vm-diagnosis', v.diagnosis||'');
+  setVal('vm-treatment', v.treatment||'');
+  setVal('vm-followup-instr', v.followupInstr||'');
+  // SOAP
+  const s = v.soap?.s||{}; const o = v.soap?.o||{}; const a = v.soap?.a||{}; const p2 = v.soap?.p||{};
+  setChk('s-vomiting',!!s.vomiting); setChk('s-diarrhea',!!s.diarrhea); setChk('s-anorexia',!!s.anorexia);
+  setChk('s-lethargy',!!s.lethargy); setChk('s-cough',!!s.cough); setChk('s-dyspnea',!!s.dyspnea);
+  setChk('s-polyuria',!!s.polyuria); setChk('s-seizure',!!s.seizure);
+  setVal('s-duration',s.duration||'');
+  setVal('o-temp',o.temp||''); setVal('o-hr',o.hr||''); setVal('o-rr',o.rr||'');
+  setVal('o-weight',o.weight||''); setVal('o-crt',o.crt||'');
+  setVal('o-hydration',o.hydration||''); setVal('o-mm',o.mm||''); setVal('o-bcs',o.bcs||'');
+  // Restore quick-select active states
+  restoreVitalQS('qs-temp', o.temp);
+  restoreVitalQS('qs-crt', o.crt);
+  restoreVitalQS('qs-hydration', o.hydration, true);
+  restoreVitalQS('qs-mm', o.mm, true);
+  restoreVitalQS('qs-bcs', o.bcs, true);
+  setVal('a-differentials',a.differentials||''); setVal('a-diagnosis',a.diagnosis||'');
+  setVal('p-drugs',p2.drugs||''); setVal('p-fluids',p2.fluids||''); setVal('p-diagnostics',p2.diagnostics||'');
+  // Follow-up
+  setVal('vm-recheck-date', v.recheckDate||''); setVal('vm-recheck-reason', v.recheckReason||'');
+  document.getElementById('visit-modal').classList.add('show');
+  switchVisitModalTab('basics');
+}
+
+function clearVisitModal() {
+  ['vm-date','vm-complaint','vm-history','vm-exam','vm-differentials','vm-diagnosis',
+   'vm-treatment','vm-followup-instr','s-duration','o-temp','o-hr','o-rr','o-weight',
+   'o-crt','o-hydration','o-mm','o-bcs','a-differentials','a-diagnosis','p-drugs','p-fluids','p-diagnostics',
+   'vm-recheck-date','vm-recheck-reason'].forEach(id => setVal(id,''));
+  // Clear quick-select active states
+  document.querySelectorAll('#visit-modal .vqs-btn').forEach(b => b.classList.remove('active'));
+  // Clear vaccine rows
+  const vr = document.getElementById('vacc-rows'); if (vr) vr.innerHTML = '';
+  ['s-vomiting','s-diarrhea','s-anorexia','s-lethargy','s-cough','s-dyspnea','s-polyuria','s-seizure']
+    .forEach(id => setChk(id, false));
+  setVal('o-hydration','');
+}
+
+function switchVisitModalTab(tab) {
+  visitModalTab = tab;
+  document.querySelectorAll('#visit-modal .modal-tab').forEach((b,i) => {
+    const tabs = ['basics','soap','plan','vaccines','followup'];
+    b.classList.toggle('active', tabs[i]===tab);
+  });
+  document.querySelectorAll('#visit-modal .modal-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('vmt-'+tab)?.classList.add('active');
+  if (tab === 'vaccines') renderVaccineRows();
+}
+
+function setRecheckDays(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  setVal('vm-recheck-date', d.toISOString().slice(0,10));
+  // Switch to follow-up tab to confirm
+  switchVisitModalTab('followup');
+}
+
+function saveVisit() {
+  const pid = currentVisitPatientId;
+  if (!pid) return;
+  const p = patients.find(x => x.id === pid);
+  if (!p) return;
+  if (!p.visits) p.visits = [];
+
+  const visit = {
+    id: editingVisitId || uid(),
+    date: gv('vm-date'),
+    complaint: gv('vm-complaint'),
+    history: gv('vm-history'),
+    exam: gv('vm-exam'),
+    differentials: gv('vm-differentials'),
+    diagnosis: gv('vm-diagnosis'),
+    treatment: gv('vm-treatment'),
+    followupInstr: gv('vm-followup-instr'),
+    recheckDate: gv('vm-recheck-date') || null,
+    recheckReason: gv('vm-recheck-reason'),
+    soap: {
+      s: {
+        vomiting: gChk('s-vomiting'), diarrhea: gChk('s-diarrhea'), anorexia: gChk('s-anorexia'),
+        lethargy: gChk('s-lethargy'), cough: gChk('s-cough'), dyspnea: gChk('s-dyspnea'),
+        polyuria: gChk('s-polyuria'), seizure: gChk('s-seizure'), duration: gv('s-duration')
+      },
+      o: { temp: gv('o-temp'), hr: gv('o-hr'), rr: gv('o-rr'), weight: gv('o-weight'), crt: gv('o-crt'), hydration: gv('o-hydration'), mm: gv('o-mm'), bcs: gv('o-bcs') },
+      a: { differentials: gv('a-differentials'), diagnosis: gv('a-diagnosis') },
+      p: { drugs: gv('p-drugs'), fluids: gv('p-fluids'), diagnostics: gv('p-diagnostics') }
+    },
+    attachments: editingVisitId ? ((p.visits.find(v=>v.id===editingVisitId)||{}).attachments||[]) : [],
+    vaccines: collectVaccineRows(),
+    createdAt: new Date().toISOString()
+  };
+
+  // Auto-update patient weight from visit if filled
+  if (visit.soap.o.weight) p.weight = parseFloat(visit.soap.o.weight);
+
+  if (editingVisitId) {
+    const idx = p.visits.findIndex(v => v.id === editingVisitId);
+    if (idx >= 0) p.visits[idx] = visit; else p.visits.push(visit);
+    toast('✅ Visit updated');
+  } else {
+    p.visits.push(visit);
+    toast('✅ Visit saved');
+  }
+  savePatients();
+  document.getElementById('visit-modal').classList.remove('show');
+  openPatientDetail(pid);
+}
+
+async function deleteVisit(pid, vid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return;
+  const ok = await confirmDialog('Delete Visit', 'Delete this visit record? This cannot be undone.', '🗑 Delete');
+  if (!ok) return;
+  p.visits = (p.visits||[]).filter(v => v.id !== vid);
+  savePatients();
+  openPatientDetail(pid);
+  toast('Visit deleted','warn');
+}
+
+// ─── HELPERS ─────────────────────────────────────────────
+function gv(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function setVal(id, v) { const el = document.getElementById(id); if (el) el.value = v; }
+function gChk(id) { const el = document.getElementById(id); return el ? el.checked : false; }
+function setChk(id, v) { const el = document.getElementById(id); if (el) el.checked = v; }
+
+
+// ═══════════════════════════════════════════════════════════
+// V6 NEW FEATURES JAVASCRIPT
+// ═══════════════════════════════════════════════════════════
+
+// ─── QUICK-SELECT VITALS ─────────────────────────────────
+function setVital(fieldId, value, btn) {
+  setVal(fieldId, value);
+  // Find the qs container and toggle active
+  if (btn) {
+    const container = btn.closest('.vital-qs');
+    if (container) container.querySelectorAll('.vqs-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function clearVitalQS(containerOrId) {
+  const el = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
+  if (el) el.querySelectorAll('.vqs-btn').forEach(b => b.classList.remove('active'));
+}
+
+function restoreVitalQS(qsId, value, isLabel) {
+  if (!value) return;
+  const container = document.getElementById(qsId);
+  if (!container) return;
+  container.querySelectorAll('.vqs-btn').forEach(btn => {
+    if (isLabel) {
+      if (btn.onclick && btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + value + "'")) {
+        btn.classList.add('active');
+      }
+    } else {
+      const numVal = parseFloat(value);
+      const btnVal = parseFloat(btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || '');
+      if (!isNaN(numVal) && !isNaN(btnVal) && Math.abs(numVal - btnVal) < 0.3) btn.classList.add('active');
+    }
+  });
+}
+
+// ─── OWNER MODULE ─────────────────────────────────────────
+function setPatientsView(view) {
+  patientsView = view;
+  document.getElementById('pview-patients')?.classList.toggle('active', view === 'patients');
+  document.getElementById('pview-owners')?.classList.toggle('active', view === 'owners');
+  document.getElementById('patient-filter-tabs').style.display = view === 'patients' ? '' : 'none';
+  document.getElementById('patient-list').style.display = view === 'patients' ? '' : 'none';
+  document.getElementById('owner-list').style.display = view === 'owners' ? '' : 'none';
+  const addBtn = document.getElementById('patients-add-btn');
+  if (addBtn) { addBtn.textContent = view === 'owners' ? '+ New Owner' : '+ New Patient'; addBtn.onclick = view === 'owners' ? openNewOwnerModal : openNewPatientModal; }
+  if (view === 'owners') renderOwnerList();
+  else renderPatientList();
+}
+
+function onPatientsSearch() {
+  if (patientsView === 'owners') renderOwnerList();
+  else renderPatientList();
+}
+
+function renderOwnerList() {
+  const el = document.getElementById('owner-list');
+  if (!el) return;
+  const q = (document.getElementById('patients-search')?.value || '').trim().toLowerCase();
+  let list = owners.filter(o => !q || o.name.toLowerCase().includes(q) || (o.phone||'').includes(q));
+  list.sort((a,b) => a.name.localeCompare(b.name));
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">${q ? 'No owners found' : 'No owners yet. Add an owner to group pets under one account.'}</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(o => renderOwnerCard(o)).join('');
+}
+
+function renderOwnerCard(o) {
+  const pets = patients.filter(p => p.ownerId === o.id);
+  const petsHtml = pets.length ? pets.map(p => {
+    const icon = p.species === 'dog' ? '🐶' : p.species === 'cat' ? '🐱' : '🐾';
+    const due = getDueVisit(p);
+    return `<div class="owner-pet-row" onclick="openPatientDetail('${p.id}')">
+      <span style="font-size:18px">${icon}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700">${p.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${[p.breed,p.age].filter(Boolean).join(' · ')}</div>
+      </div>
+      ${due ? '<span style="font-size:10px;color:var(--warn);font-weight:700">📅 Due</span>' : ''}
+      <span style="font-size:11px;color:var(--accent2)">›</span>
+    </div>`;
+  }).join('') : '<div style="font-size:12px;color:var(--muted);padding:6px 2px">No pets linked yet</div>';
+
+  return `<div class="owner-card">
+    <div class="owner-card-top" onclick="toggleOwnerCard('${o.id}')">
+      <div class="owner-avatar">👤</div>
+      <div style="flex:1;min-width:0">
+        <div class="owner-name">${o.name}</div>
+        <div class="owner-meta">${o.phone||''}${o.phone&&o.whatsapp?' · ':''}${o.whatsapp&&o.whatsapp!==o.phone?'WA: '+o.whatsapp:''}</div>
+        <div class="owner-meta">${o.address||''}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="icon-btn edit" onclick="event.stopPropagation();openEditOwnerModal('${o.id}')" title="Edit">✏️</button>
+        <button class="icon-btn del" onclick="event.stopPropagation();deleteOwner('${o.id}')" title="Delete">🗑</button>
+      </div>
+    </div>
+    <div class="owner-pets" id="owner-pets-${o.id}" style="display:none">
+      ${petsHtml}
+      <button class="btn btn-secondary btn-sm" style="margin-top:4px" onclick="event.stopPropagation();openNewPatientModalWithOwner('${o.id}')">+ Add Pet</button>
+    </div>
+  </div>`;
+}
+
+function toggleOwnerCard(oid) {
+  const el = document.getElementById('owner-pets-' + oid);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function openNewOwnerModal() {
+  editingOwnerId = null;
+  document.getElementById('owner-modal-title').textContent = 'New Owner';
+  ['om-name','om-phone','om-whatsapp','om-address','om-notes'].forEach(id => setVal(id,''));
+  document.getElementById('owner-modal').classList.add('show');
+}
+
+function openEditOwnerModal(oid) {
+  const o = owners.find(x => x.id === oid);
+  if (!o) return;
+  editingOwnerId = oid;
+  document.getElementById('owner-modal-title').textContent = 'Edit Owner';
+  setVal('om-name', o.name||''); setVal('om-phone', o.phone||'');
+  setVal('om-whatsapp', o.whatsapp||''); setVal('om-address', o.address||'');
+  setVal('om-notes', o.notes||'');
+  document.getElementById('owner-modal').classList.add('show');
+}
+
+function saveOwner() {
+  const name = gv('om-name').trim();
+  if (!name) { toast('Owner name is required', 'error'); return; }
+  const o = { id: editingOwnerId || uid(), name, phone: gv('om-phone'), whatsapp: gv('om-whatsapp'), address: gv('om-address'), notes: gv('om-notes') };
+  if (editingOwnerId) {
+    const idx = owners.findIndex(x => x.id === editingOwnerId);
+    if (idx >= 0) owners[idx] = o; else owners.push(o);
+    toast('✅ Owner updated');
+  } else { owners.push(o); toast('✅ Owner added'); }
+  savePatients();
+  document.getElementById('owner-modal').classList.remove('show');
+  renderOwnerList();
+  populateOwnerDropdown();
+}
+
+async function deleteOwner(oid) {
+  const o = owners.find(x => x.id === oid); if (!o) return;
+  const ok = await confirmDialog('Delete Owner', `Delete ${o.name}? Pets linked to this owner will be unlinked but not deleted.`, '🗑 Delete');
+  if (!ok) return;
+  owners = owners.filter(x => x.id !== oid);
+  patients.forEach(p => { if (p.ownerId === oid) p.ownerId = null; });
+  savePatients();
+  renderOwnerList();
+  toast('Owner deleted','warn');
+}
+
+function openNewPatientModalWithOwner(oid) {
+  openNewPatientModal();
+  setTimeout(() => {
+    switchPatientModalTab('owner');
+    const sel = document.getElementById('pm-owner-select');
+    if (sel) { populateOwnerDropdown(); sel.value = oid; onOwnerSelectChange(); }
+  }, 100);
+}
+
+function populateOwnerDropdown() {
+  const sel = document.getElementById('pm-owner-select');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— New / No owner —</option>' +
+    owners.map(o => `<option value="${o.id}">${o.name}${o.phone?' ('+o.phone+')':''}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function onOwnerSelectChange() {
+  const sel = document.getElementById('pm-owner-select');
+  const oid = sel?.value;
+  const detailsDiv = document.getElementById('pm-owner-details');
+  if (!oid) { if (detailsDiv) detailsDiv.style.display = ''; return; }
+  const o = owners.find(x => x.id === oid);
+  if (o && detailsDiv) {
+    detailsDiv.style.display = 'none';
+  }
+}
+
+// ─── PATIENT MODAL - populate owner dropdown on open ─────
+const _origOpenNewPatientModal = openNewPatientModal;
+// Override openNewPatientModal to also populate owners
+function openNewPatientModal() {
+  editingPatientId = null;
+  document.getElementById('patient-modal-title').textContent = 'New Patient';
+  clearPatientModal();
+  populateOwnerDropdown();
+  document.getElementById('patient-modal').classList.add('show');
+  switchPatientModalTab('info');
+}
+
+const _origOpenEditPatientModal = openEditPatientModal;
+function openEditPatientModal(pid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return;
+  editingPatientId = pid;
+  document.getElementById('patient-modal-title').textContent = 'Edit Patient';
+  setVal('pm-name', p.name||''); setVal('pm-species', p.species||'dog'); setVal('pm-sex', p.sex||'male');
+  setVal('pm-breed', p.breed||''); setVal('pm-age', p.age||''); setVal('pm-weight', p.weight||'');
+  setVal('pm-color', p.color||''); setVal('pm-chip', p.chip||'');
+  setVal('pm-owner-name', p.ownerName||''); setVal('pm-owner-phone', p.ownerPhone||'');
+  setVal('pm-owner-whatsapp', p.ownerWhatsapp||''); setVal('pm-owner-address', p.ownerAddress||'');
+  setVal('pm-owner-notes', p.ownerNotes||'');
+  setVal('pm-prev-diseases', p.prevDiseases||''); setVal('pm-vaccines', p.vaccines||'');
+  setVal('pm-current-meds', p.currentMeds||''); setVal('pm-allergies', p.allergies||'');
+  populateOwnerDropdown();
+  if (p.ownerId) { setVal('pm-owner-select', p.ownerId); onOwnerSelectChange(); }
+  document.getElementById('patient-modal').classList.add('show');
+  switchPatientModalTab('info');
+}
+
+// ─── savePatient - update to link/create owner ────────────
+const _origSavePatient = savePatient;
+function savePatient() {
+  const name = gv('pm-name').trim();
+  if (!name) { toast('Please enter the pet name', 'error'); return; }
+  const selectedOwnerId2 = gv('pm-owner-select') || null;
+
+  // If no owner selected but owner name filled, auto-create owner
+  let ownerId = selectedOwnerId2;
+  const ownerName = gv('pm-owner-name').trim();
+  if (!ownerId && ownerName) {
+    const newOwner = { id: uid(), name: ownerName, phone: gv('pm-owner-phone'), whatsapp: gv('pm-owner-whatsapp'), address: gv('pm-owner-address'), notes: gv('pm-owner-notes') };
+    owners.push(newOwner);
+    ownerId = newOwner.id;
+  }
+
+  const p = {
+    id: editingPatientId || uid(),
+    name, species: gv('pm-species'), sex: gv('pm-sex'),
+    breed: gv('pm-breed'), age: gv('pm-age'),
+    weight: gv('pm-weight') ? parseFloat(gv('pm-weight')) : null,
+    color: gv('pm-color'), chip: gv('pm-chip'),
+    ownerId,
+    ownerName: ownerName || (ownerId ? (owners.find(o=>o.id===ownerId)||{}).name : ''),
+    ownerPhone: gv('pm-owner-phone'), ownerWhatsapp: gv('pm-owner-whatsapp'),
+    ownerAddress: gv('pm-owner-address'), ownerNotes: gv('pm-owner-notes'),
+    prevDiseases: gv('pm-prev-diseases'), vaccines: gv('pm-vaccines'),
+    currentMeds: gv('pm-current-meds'), allergies: gv('pm-allergies'),
+    visits: [], createdAt: new Date().toISOString()
+  };
+  if (editingPatientId) {
+    const existing = patients.find(x => x.id === editingPatientId);
+    if (existing) { p.visits = existing.visits || []; p.createdAt = existing.createdAt; }
+    const idx = patients.findIndex(x => x.id === editingPatientId);
+    if (idx >= 0) patients[idx] = p; else patients.push(p);
+    toast('✅ Patient updated');
+  } else { patients.push(p); toast('✅ Patient added'); }
+  savePatients();
+  document.getElementById('patient-modal').classList.remove('show');
+  renderPatientList();
+  if (document.getElementById('page-patient-detail').classList.contains('active')) openPatientDetail(p.id);
+}
+
+// ─── VACCINE MODULE ───────────────────────────────────────
+const VACCINES = [
+  { id: 'rabies',    name: 'Rabies',        intervalDays: 365, species: ['dog','cat'] },
+  { id: 'dhppi',    name: 'DHPPi',         intervalDays: 365, species: ['dog'] },
+  { id: 'tricat',   name: 'Tricat',        intervalDays: 365, species: ['cat'] },
+  { id: 'kennel',   name: 'Kennel Cough',  intervalDays: 365, species: ['dog'] },
+  { id: 'felv',     name: 'FeLV',          intervalDays: 365, species: ['cat'] },
+  { id: 'bordetella',name:'Bordetella',    intervalDays: 180, species: ['dog'] },
+];
+
+let tempVaccines = []; // working copy while modal is open
+
+function renderVaccineRows() {
+  const el = document.getElementById('vacc-rows');
+  if (!el) return;
+  if (!tempVaccines.length) {
+    // Init from current visit if editing
+    const pid = currentVisitPatientId;
+    const p = patients.find(x => x.id === pid);
+    const patSpecies = p?.species || 'dog';
+    const relevantVaccines = VACCINES.filter(v => v.species.includes(patSpecies));
+    if (!tempVaccines.length) tempVaccines = relevantVaccines.map(v => ({ id: v.id, name: v.name, date: '', nextDate: '', notes: '' }));
+  }
+  el.innerHTML = tempVaccines.map((v,i) => {
+    const vaccDef = VACCINES.find(x => x.id === v.id);
+    let badge = '', nextInfo = '';
+    if (v.date) {
+      const given = new Date(v.date);
+      const next = v.nextDate ? new Date(v.nextDate) : new Date(given.getTime() + (vaccDef?.intervalDays||365)*86400000);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const daysLeft = Math.round((next - today) / 86400000);
+      if (daysLeft < 0) badge = `<span class="vacc-badge due">⚠ Overdue ${Math.abs(daysLeft)}d</span>`;
+      else if (daysLeft <= 30) badge = `<span class="vacc-badge soon">Due in ${daysLeft}d</span>`;
+      else badge = `<span class="vacc-badge ok">Due ${next.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>`;
+    } else {
+      badge = `<span class="vacc-badge none">Not recorded</span>`;
+    }
+    return `<div class="vacc-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:700">💉 ${v.name}</div>
+        ${badge}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+        <div class="field" style="margin-bottom:0">
+          <label>DATE GIVEN</label>
+          <input type="date" value="${v.date||''}" onchange="tempVaccines[${i}].date=this.value;renderVaccineRows()">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>NEXT DUE (optional)</label>
+          <input type="date" value="${v.nextDate||''}" onchange="tempVaccines[${i}].nextDate=this.value;renderVaccineRows()">
+        </div>
+      </div>
+      <div class="field" style="margin-top:7px;margin-bottom:0">
+        <label>NOTES / BATCH</label>
+        <input type="text" value="${v.notes||''}" placeholder="e.g. Nobivac, batch #XY" oninput="tempVaccines[${i}].notes=this.value">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addVaccineRow() {
+  tempVaccines.push({ id: uid(), name: 'Custom Vaccine', date: '', nextDate: '', notes: '' });
+  renderVaccineRows();
+}
+
+function collectVaccineRows() {
+  return tempVaccines.filter(v => v.date || v.notes);
+}
+
+function getPatientVaccineStatus(p) {
+  const allVaccines = (p.visits||[]).flatMap(v => v.vaccines||[]);
+  const status = [];
+  const patSpecies = p.species || 'dog';
+  const relevantVaccines = VACCINES.filter(v => v.species.includes(patSpecies));
+  const today = new Date(); today.setHours(0,0,0,0);
+  relevantVaccines.forEach(vaccDef => {
+    const records = allVaccines.filter(v => v.id === vaccDef.id || v.name === vaccDef.name);
+    if (!records.length) { status.push({ name: vaccDef.name, status: 'none', daysLeft: null }); return; }
+    const lastRecord = records[records.length - 1];
+    const given = new Date(lastRecord.date);
+    const next = lastRecord.nextDate ? new Date(lastRecord.nextDate) : new Date(given.getTime() + vaccDef.intervalDays*86400000);
+    const daysLeft = Math.round((next - today) / 86400000);
+    status.push({ name: vaccDef.name, status: daysLeft < 0 ? 'due' : daysLeft <= 30 ? 'soon' : 'ok', daysLeft, nextDate: next });
+  });
+  return status;
+}
+
+// ─── GITHUB GIST SYNC ─────────────────────────────────────
+function loadGitHubSettings() {
+  try {
+    ghToken = localStorage.getItem('vd_gh_token') || '';
+    ghGistId = localStorage.getItem('vd_gh_gist_id') || '';
+    setVal('gh-token', ghToken);
+    setVal('gh-gist-id', ghGistId);
+  } catch(e) {}
+}
+
+function saveGitHubSettings() {
+  ghToken = gv('gh-token').trim();
+  ghGistId = gv('gh-gist-id').trim();
+  try {
+    localStorage.setItem('vd_gh_token', ghToken);
+    localStorage.setItem('vd_gh_gist_id', ghGistId);
+  } catch(e) {}
+  if (ghToken) { toast('✅ GitHub connected — syncing...'); syncNow(); }
+  else toast('GitHub token cleared', 'warn');
+  updateSyncStatusUI();
+}
+
+let gistSyncTimer = null;
+function scheduleGistSync() {
+  if (!ghToken) return;
+  clearTimeout(gistSyncTimer);
+  gistSyncTimer = setTimeout(() => syncNow(true), 3000);
+}
+
+async function syncNow(silent = false) {
+  if (!ghToken) { if (!silent) toast('Enter GitHub token first', 'error'); return; }
+  if (syncBusy) return;
+  syncBusy = true;
+  updateSyncStatusUI('busy');
+  try {
+    const payload = buildGistPayload();
+    if (ghGistId) {
+      await updateGist(ghGistId, payload);
+    } else {
+      const id = await createGist(payload);
+      ghGistId = id;
+      localStorage.setItem('vd_gh_gist_id', id);
+      setVal('gh-gist-id', id);
+    }
+    lastSyncTime = new Date();
+    localStorage.setItem('vd_gh_last_sync', lastSyncTime.toISOString());
+    if (!silent) toast('✅ Synced to GitHub');
+    updateSyncStatusUI('ok');
+  } catch(e) {
+    console.error('Gist sync failed:', e);
+    if (!silent) toast('Sync failed: ' + (e.message||'network error'), 'error');
+    updateSyncStatusUI('err');
+  }
+  syncBusy = false;
+}
+
+function buildGistPayload() {
+  return JSON.stringify({ version: 6, meds, calcHistory, patients, owners, doctorName, syncedAt: new Date().toISOString() });
+}
+
+async function createGist(content) {
+  const res = await fetch('https://api.github.com/gists', {
+    method: 'POST',
+    headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ description: 'VetDose Data — Do not edit manually', public: false, files: { [GIST_FILENAME]: { content } } })
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  return data.id;
+}
+
+async function updateGist(gistId, content) {
+  const res = await fetch('https://api.github.com/gists/' + gistId, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files: { [GIST_FILENAME]: { content } } })
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+}
+
+async function pullFromGist() {
+  if (!ghToken || !ghGistId) { toast('Configure GitHub token and Gist ID first', 'error'); return; }
+  const ok = await confirmDialog('Pull from Cloud', 'This will OVERWRITE local data with cloud data. Are you sure?', '⬇ Pull');
+  if (!ok) return;
+  updateSyncStatusUI('busy');
+  try {
+    const res = await fetch('https://api.github.com/gists/' + ghGistId, {
+      headers: { 'Authorization': 'token ' + ghToken }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const gistData = await res.json();
+    const content = gistData.files?.[GIST_FILENAME]?.content;
+    if (!content) throw new Error('File not found in Gist');
+    const data = JSON.parse(content);
+    if (Array.isArray(data.meds)) meds = data.meds;
+    if (Array.isArray(data.calcHistory)) calcHistory = data.calcHistory;
+    if (Array.isArray(data.patients)) patients = data.patients;
+    if (Array.isArray(data.owners)) owners = data.owners;
+    if (data.doctorName) doctorName = data.doctorName;
+    await save();
+    await savePatients();
+    toast('✅ Pulled from GitHub cloud');
+    renderPatientList(); renderMedList(); renderHistory(); updateStats();
+    updateSyncStatusUI('ok');
+  } catch(e) {
+    toast('Pull failed: ' + (e.message||'error'), 'error');
+    updateSyncStatusUI('err');
+  }
+}
+
+function updateSyncStatusUI(state) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-status-text');
+  const sub = document.getElementById('sync-last-time');
+  if (!dot) return;
+  dot.className = 'sync-dot ' + (state||'');
+  if (!state || state === 'ok') {
+    if (!ghToken) { txt && (txt.textContent = 'Not configured — add token above'); return; }
+    txt && (txt.textContent = ghGistId ? '✅ Connected — Gist: ' + ghGistId.slice(0,8)+'…' : '⚡ Token saved — will create Gist on first sync');
+    const stored = localStorage.getItem('vd_gh_last_sync');
+    if (sub && stored) sub.textContent = 'Last sync: ' + new Date(stored).toLocaleString();
+  } else if (state === 'busy') {
+    txt && (txt.textContent = '⏳ Syncing…');
+  } else if (state === 'err') {
+    txt && (txt.textContent = '❌ Sync failed — check token/network');
+  }
+}
+
+// ─── PRESCRIPTION PDF / PRINT ─────────────────────────────
+function printCalcRx() {
+  if (!selectedMed || !selectedRoute || !selectedCase) return toast('No result to print', 'error');
+  const rawW = parseFloat(document.getElementById('calc-weight')?.value || '0');
+  const doseMg = (selectedCase.dose * rawW).toFixed(2);
+  const patientId = document.getElementById('calc-patient-id')?.value?.trim() || 'Unknown';
+  const regPat = patients.find(p => p.name.toLowerCase() === patientId.toLowerCase());
+  const owner = regPat?.ownerId ? owners.find(o => o.id === regPat.ownerId) : null;
+  const conc = selectedConc || selectedRoute.concentrations?.[0] || null;
+  const volMl = conc ? (selectedCase.dose * rawW / conc).toFixed(2) : null;
+  const freq = selectedCase.freq || selectedRoute.freq || '';
+  printRxDocument({
+    clinicName: doctorName ? 'Dr. ' + doctorName : 'VetDose Clinic',
+    date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+    patient: { name: patientId, species: calcSpecies==='dog'?'Dog':'Cat', weight: rawW, breed: regPat?.breed||'', age: regPat?.age||'' },
+    owner: owner ? { name: owner.name, phone: owner.phone } : null,
+    drugs: [{
+      name: selectedMed.name + (selectedMed.brand ? ' (' + selectedMed.brand + ')' : ''),
+      dosePerKg: selectedCase.dose,
+      totalDose: doseMg + ' mg',
+      volume: volMl ? volMl + ' ml' : null,
+      route: selectedRoute.route,
+      freq, duration: selectedCase.label && selectedCase.label !== 'Standard' ? selectedCase.label : ''
+    }]
+  });
+}
+
+function previewAndPrintRx() {
+  const pid = currentVisitPatientId;
+  const p = patients.find(x => x.id === pid);
+  if (!p) { toast('Save the visit first', 'error'); return; }
+  const owner = p.ownerId ? owners.find(o => o.id === p.ownerId) : null;
+  const drugsText = gv('p-drugs');
+  const diagnosis = gv('a-diagnosis') || gv('vm-diagnosis');
+  const drugs = drugsText.split('\n').filter(Boolean).map(line => ({ raw: line }));
+  printRxDocument({
+    clinicName: doctorName ? 'Dr. ' + doctorName : 'VetDose Clinic',
+    date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+    patient: { name: p.name, species: p.species==='dog'?'Dog':p.species==='cat'?'Cat':'Other', weight: p.weight||gv('o-weight')||'?', breed: p.breed||'', age: p.age||'' },
+    owner: owner ? { name: owner.name, phone: owner.phone } : null,
+    diagnosis,
+    drugs
+  });
+}
+
+function printRxDocument(data) {
+  const drugsHtml = (data.drugs||[]).map(d => {
+    if (d.raw) return `<tr><td colspan="4" style="padding:8px 4px;border-bottom:1px solid #e0e0e0;font-size:14px">${d.raw}</td></tr>`;
+    return `<tr style="border-bottom:1px solid #e0e0e0">
+      <td style="padding:8px 4px;font-weight:600">${d.name}</td>
+      <td style="padding:8px 4px;font-family:monospace">${d.dosePerKg} mg/kg</td>
+      <td style="padding:8px 4px;font-family:monospace">${d.totalDose}${d.volume?' = '+d.volume:''}</td>
+      <td style="padding:8px 4px">${d.route}${d.freq?' '+d.freq:''}${d.duration?' × '+d.duration:''}</td>
+    </tr>`;
+  }).join('');
+
+  const w = window.open('', '_blank', 'width=700,height=900');
+  if (!w) { toast('Allow popups to print', 'warn'); return; }
+  w.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Prescription — ${data.patient.name}</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; color: #111; background: #fff; }
+  .rx-page { max-width: 720px; margin: 0 auto; padding: 32px 40px; }
+  .rx-header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid #1a73e8; padding-bottom: 16px; margin-bottom: 24px; }
+  .clinic-name { font-size: 22px; font-weight: 800; color: #1a73e8; }
+  .clinic-sub { font-size: 13px; color: #666; margin-top: 3px; }
+  .rx-date { font-size: 13px; color: #555; text-align: right; }
+  .patient-box { background: #f8faff; border: 1px solid #dbe8ff; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pt-row { font-size: 13px; } .pt-label { color: #777; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; } .pt-val { font-weight: 700; font-size: 14px; }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
+  .rx-symbol { font-size: 40px; color: #1a73e8; font-weight: 900; line-height: 1; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; text-align: left; padding: 6px 4px; border-bottom: 2px solid #e0e0e0; }
+  .rx-footer { margin-top: 40px; border-top: 1px solid #e0e0e0; padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .signature-line { border-top: 1px solid #333; width: 200px; text-align: center; padding-top: 6px; font-size: 12px; color: #555; }
+  .stamp-area { width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #ccc; }
+  @media print { body { padding: 0; } .rx-page { padding: 16px 24px; } }
+</style>
+</head>
+<body>
+<div class="rx-page">
+  <div class="rx-header">
+    <div>
+      <div class="clinic-name">${data.clinicName}</div>
+      <div class="clinic-sub">Veterinary Prescription</div>
+    </div>
+    <div class="rx-date"><strong>Date:</strong> ${data.date}</div>
+  </div>
+
+  <div class="patient-box">
+    <div class="pt-row"><div class="pt-label">Patient</div><div class="pt-val">${data.patient.name}</div></div>
+    <div class="pt-row"><div class="pt-label">Species / Breed</div><div class="pt-val">${data.patient.species}${data.patient.breed?' — '+data.patient.breed:''}</div></div>
+    <div class="pt-row"><div class="pt-label">Weight</div><div class="pt-val">${data.patient.weight} kg</div></div>
+    <div class="pt-row"><div class="pt-label">Age</div><div class="pt-val">${data.patient.age||'—'}</div></div>
+    ${data.owner ? `<div class="pt-row" style="grid-column:1/-1"><div class="pt-label">Owner</div><div class="pt-val">${data.owner.name}${data.owner.phone?' · '+data.owner.phone:''}</div></div>` : ''}
+    ${data.diagnosis ? `<div class="pt-row" style="grid-column:1/-1"><div class="pt-label">Diagnosis</div><div class="pt-val">${data.diagnosis}</div></div>` : ''}
+  </div>
+
+  <div class="rx-symbol">℞</div>
+  <div class="section-title">Prescribed Medications</div>
+  <table>
+    <thead><tr><th>Drug</th><th>Dose/kg</th><th>Total Dose</th><th>Instructions</th></tr></thead>
+    <tbody>${drugsHtml}</tbody>
+  </table>
+
+  <div class="rx-footer">
+    <div>
+      <div class="signature-line">${data.clinicName}</div>
+    </div>
+    <div class="stamp-area">STAMP</div>
+  </div>
+</div>
+<script>window.onload=function(){window.print()}<\/script>
+</body>
+</html>`);
+  w.document.close();
+}
+
+function printMedicalRecord(pid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return toast('Patient not found', 'error');
+  const owner = p.ownerId ? owners.find(o => o.id === p.ownerId) : null;
+  const visits = (p.visits||[]).slice().reverse();
+  const vaccStatus = getPatientVaccineStatus(p);
+
+  const visitsHtml = visits.map(v => {
+    const s = v.soap?.s||{}, o = v.soap?.o||{}, a = v.soap?.a||{}, plan = v.soap?.p||{};
+    const symptoms = [s.vomiting&&'Vomiting',s.diarrhea&&'Diarrhea',s.anorexia&&'Anorexia',s.lethargy&&'Lethargy',s.cough&&'Coughing',s.dyspnea&&'Dyspnea'].filter(Boolean);
+    return `<div style="border:1px solid #e0e0e0;border-radius:8px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <strong style="font-size:15px">${v.complaint||'Visit'}</strong>
+        <span style="color:#888;font-size:12px">${v.date ? new Date(v.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : ''}</span>
+      </div>
+      ${v.diagnosis||a.diagnosis?`<div style="color:#e65100;font-weight:600;margin-bottom:8px">Dx: ${v.diagnosis||a.diagnosis}</div>`:''}
+      ${symptoms.length?`<div style="margin-bottom:8px;font-size:13px"><strong>Symptoms:</strong> ${symptoms.join(', ')}${s.duration?' ('+s.duration+')':''}</div>`:''}
+      ${o.temp||o.hr?`<div style="font-size:13px;margin-bottom:8px"><strong>Vitals:</strong> Temp ${o.temp||'—'}°C · HR ${o.hr||'—'} · RR ${o.rr||'—'} · Wt ${o.weight||'—'} kg${o.mm?' · MM: '+o.mm:''}</div>`:''}
+      ${plan.drugs||v.treatment?`<div style="font-size:13px;margin-bottom:4px">💊 <strong>Drugs:</strong> ${plan.drugs||v.treatment}</div>`:''}
+      ${plan.fluids?`<div style="font-size:13px;margin-bottom:4px">💉 <strong>Fluids:</strong> ${plan.fluids}</div>`:''}
+      ${v.recheckDate?`<div style="font-size:12px;color:#f57c00">📅 Recheck: ${new Date(v.recheckDate).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}${v.recheckReason?' — '+v.recheckReason:''}</div>`:''}
+    </div>`;
+  }).join('');
+
+  const vaccHtml = vaccStatus.filter(v => v.status !== 'none').map(v =>
+    `<tr><td style="padding:6px 4px">${v.name}</td><td style="padding:6px 4px;color:${v.status==='ok'?'green':v.status==='soon'?'orange':'red'}">${v.status==='ok'?'✅ Up to date':v.status==='soon'?'⚠ Due soon':'❌ Overdue'}</td><td style="padding:6px 4px;color:#888;font-size:12px">${v.nextDate?v.nextDate.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</td></tr>`
+  ).join('');
+
+  const w = window.open('', '_blank', 'width=760,height=950');
+  if (!w) { toast('Allow popups to print', 'warn'); return; }
+  w.document.write(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Medical Record — ${p.name}</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:32px 40px;color:#111;background:#fff;max-width:780px;margin:0 auto}
+  h1{font-size:22px;font-weight:800;color:#1a73e8;border-bottom:3px solid #1a73e8;padding-bottom:12px;margin-bottom:20px}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f8faff;border-radius:10px;padding:16px;margin-bottom:24px}
+  .info-row .label{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#888;font-weight:700}.info-row .val{font-weight:700;font-size:14px}
+  h3{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#888;margin:20px 0 10px}
+  table{width:100%;border-collapse:collapse}th{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#888;text-align:left;padding:6px 4px;border-bottom:2px solid #e0e0e0}
+  .allergy-box{background:#fff0f0;border:1px solid #ffcdd2;border-radius:8px;padding:10px 14px;color:#c62828;font-weight:700;margin-bottom:16px}
+  @media print{body{padding:16px}}
+</style></head><body>
+<h1>📋 Medical Record — ${p.name}</h1>
+<div class="info-grid">
+  <div class="info-row"><div class="label">Patient</div><div class="val">${p.name}</div></div>
+  <div class="info-row"><div class="label">Species / Breed</div><div class="val">${p.species||''}${p.breed?' — '+p.breed:''}</div></div>
+  <div class="info-row"><div class="label">Sex</div><div class="val">${p.sex||'—'}</div></div>
+  <div class="info-row"><div class="label">Age / Weight</div><div class="val">${p.age||'—'} · ${p.weight||'—'} kg</div></div>
+  ${p.chip?`<div class="info-row"><div class="label">Microchip</div><div class="val">${p.chip}</div></div>`:''}
+  ${owner?`<div class="info-row" style="grid-column:1/-1"><div class="label">Owner</div><div class="val">${owner.name}${owner.phone?' · '+owner.phone:''}</div></div>`:''}
+</div>
+${p.allergies?`<div class="allergy-box">⚠ ALLERGIES: ${p.allergies}</div>`:''}
+${vaccHtml?`<h3>💉 Vaccination Status</h3><table><thead><tr><th>Vaccine</th><th>Status</th><th>Next Due</th></tr></thead><tbody>${vaccHtml}</tbody></table>`:''}
+<h3>📋 Visit History (${visits.length} visits)</h3>
+${visitsHtml || '<p style="color:#888">No visits recorded.</p>'}
+<div style="margin-top:40px;border-top:1px solid #e0e0e0;padding-top:12px;font-size:11px;color:#aaa;text-align:center">
+  Generated by VetDose · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}
+</div>
+<script>window.onload=function(){window.print()}<\/script>
+</body></html>`);
+  w.document.close();
+}
+
 // ─── CRASH PROTECTION ────────────────────────────────────
 function showFatalError(msg) {
   const overlay = document.getElementById('fatal-error-overlay');
@@ -3553,7 +5488,8 @@ function printFallback(text) {
 (async () => {
   try {
     await loadData();
-    // Backfill drugContraReasons for any existing meds that predate this feature
+    await loadPatients();
+    loadGitHubSettings();
     linkLibraryDrugContras();
     initSessions();
     updateDoctorDisplay();
@@ -3561,6 +5497,7 @@ function printFallback(text) {
     renderSessionTabs();
     initDragDrop();
     updateStats();
+    updateSyncStatusUI();
   } catch(e) {
     console.error('Init failed:', e);
     showFatalError('VetDose failed to start. Your data is safe — please reload. (' + (e?.message||'unknown error') + ')');
