@@ -1193,6 +1193,54 @@
 </div>
 
 
+<!-- SYNC CHOICE MODAL (merge vs replace on pull) -->
+<div class="modal-overlay" id="sync-choice-modal" onclick="this.classList.remove('show')">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:24px">
+    <div class="modal-handle"></div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:6px">☁️ Pull from Cloud</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:18px">How should cloud data be combined with your local data?</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:12px;color:var(--muted);text-align:center">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 8px">
+        <div style="font-size:18px;margin-bottom:4px">📱</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:2px">This Device</div>
+        <div id="sc-local" style="color:var(--accent2)">—</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 8px">
+        <div style="font-size:18px;margin-bottom:4px">☁️</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:2px">Cloud</div>
+        <div id="sc-cloud" style="color:var(--accent)">—</div>
+      </div>
+    </div>
+
+    <!-- Merge option -->
+    <div id="sc-merge-btn" onclick="" style="background:var(--surface2);border:2px solid var(--accent);border-radius:12px;padding:14px 15px;margin-bottom:9px;cursor:pointer;transition:background 0.15s"
+      onmouseenter="this.style.background='rgba(74,159,240,0.15)'" onmouseleave="this.style.background='var(--surface2)'">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="font-size:26px;flex-shrink:0">🔀</div>
+        <div>
+          <div style="font-weight:800;font-size:15px;color:var(--accent)">Merge</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4">Combine both — adds missing items from cloud, keeps all local data. Best for multi-device use.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Replace option -->
+    <div id="sc-replace-btn" onclick="" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 15px;margin-bottom:14px;cursor:pointer;transition:background 0.15s"
+      onmouseenter="this.style.background='rgba(239,83,80,0.1)'" onmouseleave="this.style.background='var(--surface2)'">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="font-size:26px;flex-shrink:0">🔁</div>
+        <div>
+          <div style="font-weight:800;font-size:15px;color:var(--danger)">Replace</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4">Overwrite local with cloud — local-only data will be lost.</div>
+        </div>
+      </div>
+    </div>
+
+    <button id="sc-cancel-btn" class="btn btn-secondary" onclick="">Cancel</button>
+  </div>
+</div>
+
 <!-- VISIT PICKER MODAL (add drug to existing visit or new) -->
 <div class="modal-overlay" id="visit-picker-modal" onclick="this.classList.remove('show')">
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
@@ -5238,7 +5286,7 @@ async function syncNow(silent = false) {
   syncBusy = true;
   updateSyncStatusUI('busy');
   try {
-    // Reload fresh data from IDB before syncing to avoid pushing stale/empty arrays
+    // Reload fresh data from IDB first
     if (usingIDB) {
       const fresh = await idbGet('vetdose_data');
       if (fresh && Array.isArray(fresh.meds) && fresh.meds.length > 0) {
@@ -5251,6 +5299,37 @@ async function syncNow(silent = false) {
       const freshO = await idbGet('vetdose_owners');
       if (Array.isArray(freshO) && freshO.length > 0) owners = freshO;
     }
+
+    // If gist already exists, merge with cloud before pushing (safe sync)
+    if (ghGistId) {
+      try {
+        const cloudData = await fetchGistContent();
+        const cloudMeds = Array.isArray(cloudData.meds) ? cloudData.meds : [];
+        const cloudPatients = Array.isArray(cloudData.patients) ? cloudData.patients : [];
+        const cloudHasData = cloudMeds.length > 0 || cloudPatients.length > 0;
+        if (cloudHasData) {
+          const merged = mergeData(
+            { meds, patients, owners, history: calcHistory, doctorName },
+            { meds: cloudMeds.map(ensureV3Fields), patients: cloudPatients,
+              owners: Array.isArray(cloudData.owners) ? cloudData.owners : [],
+              history: Array.isArray(cloudData.calcHistory) ? cloudData.calcHistory : [],
+              doctorName: cloudData.doctorName }
+          );
+          meds = merged.meds;
+          patients = merged.patients;
+          owners = merged.owners;
+          calcHistory = merged.history;
+          if (merged.doctorName) doctorName = merged.doctorName;
+          // Persist merged data locally too
+          await save();
+          await savePatients();
+        }
+      } catch(fetchErr) {
+        // If we can't reach the cloud, just push local (first-time or offline scenario)
+        console.warn('Could not fetch cloud for pre-merge, pushing local only:', fetchErr.message);
+      }
+    }
+
     const payload = buildGistPayload();
     if (ghGistId) {
       await updateGist(ghGistId, payload);
@@ -5267,7 +5346,6 @@ async function syncNow(silent = false) {
   } catch(e) {
     console.error('Gist sync failed:', e);
     const msg = e.message || 'network error';
-    // Give actionable hints for common errors
     const hint = msg.includes('Invalid token') || msg.includes('401') ? '— verify token has gist scope' :
                  msg.includes('fetch') ? '— check internet connection' : '';
     if (!silent) toast('Sync failed: ' + msg + (hint ? ' ' + hint : ''), 'error');
@@ -5323,108 +5401,179 @@ async function updateGist(gistId, content) {
   });
 }
 
-async function pullFromGist() {
-  if (!ghToken || !ghGistId) { toast('Configure GitHub token and Gist ID first', 'error'); return; }
-  const ok = await confirmDialog('Pull from Cloud', 'This will OVERWRITE local data with cloud data. Are you sure?', '⬇ Pull');
-  if (!ok) return;
-  updateSyncStatusUI('busy');
-  try {
-    const res = await ghFetch('https://api.github.com/gists/' + ghGistId);
-    const gistData = await res.json();
+async function fetchGistContent() {
+  const res = await ghFetch('https://api.github.com/gists/' + ghGistId);
+  const gistData = await res.json();
+  const fileEntry = gistData.files?.[GIST_FILENAME];
+  if (!fileEntry) {
+    const fileNames = Object.keys(gistData.files || {}).join(', ');
+    throw new Error(`File "${GIST_FILENAME}" not found in Gist. Files present: ${fileNames || 'none'}`);
+  }
+  let content = fileEntry.content;
+  if (fileEntry.raw_url) {
+    try {
+      const rawRes = await fetch(fileEntry.raw_url, { mode: 'cors', credentials: 'omit' });
+      if (rawRes.ok) {
+        const rawText = await rawRes.text();
+        if (rawText && rawText.trimStart().startsWith('{')) content = rawText;
+        else console.warn('raw_url returned non-JSON:', rawText.slice(0, 100));
+      }
+    } catch(e) { console.warn('raw_url fetch failed:', e); }
+  }
+  if (!content || !content.trimStart().startsWith('{'))
+    throw new Error('Gist file is empty or unreadable — sync from PC first then try again');
+  try { return JSON.parse(content); }
+  catch(e) { throw new Error('Gist data could not be read (parse error). Try syncing from PC again.'); }
+}
 
-    // GitHub truncates large gist content — always use raw_url for reliable fetch
-    const fileEntry = gistData.files?.[GIST_FILENAME];
-    if (!fileEntry) {
-      // List all files in gist to help diagnose wrong filename
-      const fileNames = Object.keys(gistData.files || {}).join(', ');
-      throw new Error(`File "${GIST_FILENAME}" not found in Gist. Files present: ${fileNames || 'none'}`);
+function mergeData(local, cloud) {
+  // ── Meds: merge by id, cloud wins on conflict ────────────────────
+  const medMap = new Map(local.meds.map(m => [m.id, m]));
+  let medsAdded = 0, medsUpdated = 0;
+  for (const cm of cloud.meds) {
+    if (!medMap.has(cm.id)) { medMap.set(cm.id, cm); medsAdded++; }
+    else {
+      const lm = medMap.get(cm.id);
+      // Cloud wins if it was modified more recently (use updatedAt if present)
+      const cloudNewer = cm.updatedAt && lm.updatedAt ? cm.updatedAt > lm.updatedAt : false;
+      if (cloudNewer) { medMap.set(cm.id, cm); medsUpdated++; }
     }
+  }
 
-    let content = fileEntry.content;
-
-    // Always re-fetch via raw_url to bypass truncation (GitHub truncates large files in API response).
-    // raw_url is a pre-signed URL — do NOT send Authorization header, it triggers CORS preflight rejection on iOS Safari.
-    if (fileEntry.raw_url) {
-      try {
-        const rawRes = await fetch(fileEntry.raw_url, {
-          mode: 'cors',
-          credentials: 'omit'
-          // No Authorization header — raw.githubusercontent.com URLs are pre-authenticated
-        });
-        if (rawRes.ok) {
-          const rawText = await rawRes.text();
-          // Only use raw content if it looks like JSON (starts with '{')
-          if (rawText && rawText.trimStart().startsWith('{')) {
-            content = rawText;
-          } else {
-            console.warn('raw_url returned non-JSON, falling back to inline content. Got:', rawText.slice(0, 100));
-          }
-        } else {
-          console.warn('raw_url fetch HTTP', rawRes.status, '— using inline content');
-        }
-      } catch(rawErr) {
-        console.warn('raw_url fetch failed, using inline content:', rawErr);
+  // ── Patients: merge by id, merge visits within each patient ─────
+  const patMap = new Map(local.patients.map(p => [p.id, JSON.parse(JSON.stringify(p))]));
+  let patsAdded = 0, visitsAdded = 0;
+  for (const cp of cloud.patients) {
+    if (!patMap.has(cp.id)) { patMap.set(cp.id, cp); patsAdded++; }
+    else {
+      const lp = patMap.get(cp.id);
+      // Merge visits by visit id
+      const visitIds = new Set((lp.visits || []).map(v => v.id));
+      for (const cv of (cp.visits || [])) {
+        if (!visitIds.has(cv.id)) { (lp.visits = lp.visits || []).push(cv); visitsAdded++; }
+      }
+      // Update patient metadata fields if cloud is newer
+      if (cp.updatedAt && (!lp.updatedAt || cp.updatedAt > lp.updatedAt)) {
+        Object.assign(lp, cp, { visits: lp.visits }); // keep merged visits
       }
     }
+  }
 
-    if (!content || !content.trimStart().startsWith('{')) {
-      throw new Error('Gist file is empty or unreadable — try tapping "Sync Now" on your PC first, then pull again');
-    }
+  // ── Owners: merge by id ──────────────────────────────────────────
+  const ownerMap = new Map(local.owners.map(o => [o.id, o]));
+  for (const co of cloud.owners) { if (!ownerMap.has(co.id)) ownerMap.set(co.id, co); }
 
-    let data;
-    try {
-      data = JSON.parse(content);
-    } catch(parseErr) {
-      console.error('JSON parse failed on:', content.slice(0, 200));
-      throw new Error('Gist data could not be read (parse error). Try syncing from PC again.');
-    }
+  // ── Calc history: merge by id, deduplicate ───────────────────────
+  const histMap = new Map(local.history.map(h => [h.id || h.ts, h]));
+  let histAdded = 0;
+  for (const ch of cloud.history) {
+    const key = ch.id || ch.ts;
+    if (!histMap.has(key)) { histMap.set(key, ch); histAdded++; }
+  }
 
-    const cloudMeds = Array.isArray(data.meds) ? data.meds : [];
-    const cloudPatients = Array.isArray(data.patients) ? data.patients : [];
-    const cloudHistory = Array.isArray(data.calcHistory) ? data.calcHistory : [];
-    const cloudOwners = Array.isArray(data.owners) ? data.owners : [];
+  return {
+    meds: [...medMap.values()],
+    patients: [...patMap.values()],
+    owners: [...ownerMap.values()],
+    history: [...histMap.values()].sort((a, b) => (b.ts||'') > (a.ts||'') ? 1 : -1),
+    doctorName: cloud.doctorName || local.doctorName,
+    stats: { medsAdded, medsUpdated, patsAdded, visitsAdded, histAdded }
+  };
+}
 
-    console.log(`Pull: ${cloudMeds.length} meds, ${cloudPatients.length} patients, ${cloudHistory.length} calcs`);
+async function pullFromGist() {
+  if (!ghToken || !ghGistId) { toast('Configure GitHub token and Gist ID first', 'error'); return; }
+  updateSyncStatusUI('busy');
+  let cloudData;
+  try {
+    cloudData = await fetchGistContent();
+  } catch(e) {
+    toast('Pull failed: ' + e.message, 'error');
+    updateSyncStatusUI('err');
+    return;
+  }
 
-    // Warn if cloud looks empty but local has data
-    const cloudEmpty = cloudMeds.length === 0 && cloudPatients.length === 0;
-    const localHasData = meds.length > 0 || patients.length > 0;
-    if (cloudEmpty && localHasData) {
-      const proceed = await confirmDialog(
-        '⚠️ Cloud Data Looks Empty',
-        `The Gist contains 0 meds and 0 patients, but you have ${meds.length} meds and ${patients.length} patients locally.\n\nThis may mean the cloud was synced before data was loaded. Pull anyway and erase local data?`,
-        '⬇ Pull Anyway'
-      );
-      if (!proceed) { updateSyncStatusUI(); return; }
-    }
+  const cloudMeds = Array.isArray(cloudData.meds) ? cloudData.meds : [];
+  const cloudPatients = Array.isArray(cloudData.patients) ? cloudData.patients : [];
+  const cloudHistory = Array.isArray(cloudData.calcHistory) ? cloudData.calcHistory : [];
+  const cloudOwners = Array.isArray(cloudData.owners) ? cloudData.owners : [];
 
-    // Restore all data arrays
-    meds = cloudMeds.map(ensureV3Fields);
-    calcHistory = cloudHistory;
-    patients = cloudPatients;
-    owners = cloudOwners;
-    if (data.doctorName) doctorName = data.doctorName;
+  // Build summary for the prompt
+  const localSummary = `${meds.length} meds · ${patients.length} patients · ${calcHistory.length} calcs`;
+  const cloudSummary = `${cloudMeds.length} meds · ${cloudPatients.length} patients · ${cloudHistory.length} calcs`;
+  const cloudEmpty = cloudMeds.length === 0 && cloudPatients.length === 0;
 
-    // Persist to local storage / IDB
+  if (cloudEmpty && (meds.length > 0 || patients.length > 0)) {
+    const proceed = await confirmDialog('⚠️ Cloud Appears Empty',
+      `Cloud has 0 meds and 0 patients, but you have ${meds.length} meds locally.\n\nThe gist may have been synced before data loaded. Pull anyway?`,
+      '⬇ Pull Anyway');
+    if (!proceed) { updateSyncStatusUI(); return; }
+    // Replace with empty cloud data
+    await applyCloudData(cloudMeds, cloudPatients, cloudHistory, cloudOwners, cloudData.doctorName);
+    return;
+  }
+
+  // Show merge vs replace choice
+  const choice = await syncChoiceDialog(localSummary, cloudSummary);
+  if (!choice) { updateSyncStatusUI(); return; }
+
+  if (choice === 'replace') {
+    await applyCloudData(cloudMeds, cloudPatients, cloudHistory, cloudOwners, cloudData.doctorName);
+  } else {
+    // Smart merge
+    const local = {
+      meds, patients, owners,
+      history: calcHistory,
+      doctorName
+    };
+    const cloud = {
+      meds: cloudMeds.map(ensureV3Fields),
+      patients: cloudPatients,
+      owners: cloudOwners,
+      history: cloudHistory,
+      doctorName: cloudData.doctorName
+    };
+    const merged = mergeData(local, cloud);
+    meds = merged.meds.map(ensureV3Fields);
+    patients = merged.patients;
+    owners = merged.owners;
+    calcHistory = merged.history;
+    if (merged.doctorName) doctorName = merged.doctorName;
     await save();
     await savePatients();
-
-    // Re-render ALL UI that depends on the pulled data
-    linkLibraryDrugContras();
-    updateDoctorDisplay();
-    renderCalcList();
-    renderMedList();
-    renderPatientList();
-    renderHistory();
-    updateStats();
+    linkLibraryDrugContras(); updateDoctorDisplay();
+    renderCalcList(); renderMedList(); renderPatientList(); renderHistory(); updateStats();
     updateSyncStatusUI('ok');
-
-    toast(`✅ Pulled: ${meds.length} meds, ${patients.length} patients`);
-  } catch(e) {
-    console.error('Pull failed:', e);
-    toast('Pull failed: ' + (e.message||'error'), 'error');
-    updateSyncStatusUI('err');
+    const s = merged.stats;
+    toast(`✅ Merged: +${s.medsAdded} meds, +${s.patsAdded} patients, +${s.visitsAdded} visits, +${s.histAdded} calcs`);
   }
+}
+
+async function applyCloudData(cloudMeds, cloudPatients, cloudHistory, cloudOwners, cloudDoctorName) {
+  meds = cloudMeds.map(ensureV3Fields);
+  calcHistory = cloudHistory;
+  patients = cloudPatients;
+  owners = cloudOwners;
+  if (cloudDoctorName) doctorName = cloudDoctorName;
+  await save();
+  await savePatients();
+  linkLibraryDrugContras(); updateDoctorDisplay();
+  renderCalcList(); renderMedList(); renderPatientList(); renderHistory(); updateStats();
+  updateSyncStatusUI('ok');
+  toast(`✅ Replaced: ${meds.length} meds, ${patients.length} patients`);
+}
+
+// Sync choice dialog — merge or replace
+function syncChoiceDialog(localSummary, cloudSummary) {
+  return new Promise(resolve => {
+    const m = document.getElementById('sync-choice-modal');
+    document.getElementById('sc-local').textContent = localSummary;
+    document.getElementById('sc-cloud').textContent = cloudSummary;
+    document.getElementById('sc-merge-btn').onclick = () => { m.classList.remove('show'); resolve('merge'); };
+    document.getElementById('sc-replace-btn').onclick = () => { m.classList.remove('show'); resolve('replace'); };
+    document.getElementById('sc-cancel-btn').onclick = () => { m.classList.remove('show'); resolve(null); };
+    m.classList.add('show');
+  });
 }
 
 function updateSyncStatusUI(state) {
