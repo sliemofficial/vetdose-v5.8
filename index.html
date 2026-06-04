@@ -790,7 +790,11 @@
       <label>DOCTOR NAME</label>
       <input type="text" id="setting-doctor-name" placeholder="e.g. Dr. Sarah Al-Amin" oninput="saveDoctorName()">
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:-6px">Displayed on the calculator and included in .vdp exports.</div>
+    <div class="field">
+      <label>CLINIC NAME</label>
+      <input type="text" id="setting-clinic-name" placeholder="e.g. Al-Amin Veterinary Clinic" oninput="saveClinicName()">
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:-6px">Both appear on printed prescriptions and medical records.</div>
   </div>
 
   <div class="card" id="vdp-drop-zone">
@@ -1344,6 +1348,36 @@
   </div>
 </div>
 
+<!-- CUSTOM RX MODAL -->
+<div class="modal-overlay" id="custom-rx-modal" onclick="this.id==='custom-rx-modal'&&this.classList.remove('show')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">📋 Custom Prescription</div>
+      <button class="modal-close" onclick="document.getElementById('custom-rx-modal').classList.remove('show')">✕</button>
+    </div>
+    <div style="padding:0 14px 14px">
+      <div class="field">
+        <label>DIAGNOSIS / CONDITION <span style="color:var(--muted);font-weight:400">(shown to owner in plain language)</span></label>
+        <input type="text" id="crx-diagnosis" placeholder="e.g. Stomach upset, Skin infection">
+      </div>
+      <div class="field">
+        <label>MEDICATIONS</label>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">One medication per line. Write simply: name, amount, how often.</div>
+        <textarea id="crx-drugs" rows="5" style="resize:none" placeholder="Amoxicillin tablets — 1 tablet twice daily for 7 days&#10;Metronidazole syrup — 2ml three times daily for 5 days&#10;Probiotics — 1 sachet once daily for 10 days"></textarea>
+      </div>
+      <div class="field">
+        <label>FOLLOW-UP INSTRUCTIONS <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+        <textarea id="crx-notes" rows="2" style="resize:none" placeholder="e.g. Return if vomiting continues after 48 hours. Give medications with food."></textarea>
+      </div>
+      <div class="field">
+        <label>DATE</label>
+        <input type="date" id="crx-date">
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="printCustomRx()">🖨 Print Prescription</button>
+    </div>
+  </div>
+</div>
+
 <!-- CUSTOM CONFIRM MODAL (replaces browser confirm() which is blocked on iOS) -->
 <div class="modal-overlay" id="confirm-modal" style="z-index:500">
   <div class="modal" style="padding-bottom:28px" onclick="event.stopPropagation()">
@@ -1371,6 +1405,8 @@ const DB_VER  = 1;
 let meds = [];
 let calcHistory = [];
 let doctorName = '';
+let clinicName = '';
+let deletedIds = { meds: [], patients: [] }; // tombstones for cloud sync deletions
 let selectedMed = null;
 let selectedRoute = null;
 let selectedCase = null;
@@ -1456,6 +1492,8 @@ async function save() {
     meds,
     history: calcHistory,
     doctorName,
+    clinicName,
+    deletedIds,
     savedAt: new Date().toISOString()
   };
   if (usingIDB) {
@@ -1489,6 +1527,8 @@ async function loadData() {
       meds        = data.meds.map(ensureV3Fields);
       calcHistory = data.history || [];
       doctorName  = data.doctorName || '';
+      clinicName  = data.clinicName || '';
+      deletedIds  = data.deletedIds || { meds: [], patients: [] };
       // Migrate old localStorage data into IDB if IDB is empty but LS has data
       if (!meds.length) migrateFromLS();
       updateStorageBadge(true);
@@ -1514,6 +1554,7 @@ function migrateFromLS() {
   }
   try { const s = localStorage.getItem('vetdose_history'); if (s) calcHistory = JSON.parse(s); } catch(e){ calcHistory=[]; }
   doctorName = localStorage.getItem('vetdose_doctor') || '';
+  clinicName = localStorage.getItem('vetdose_clinic') || '';
 }
 
 function updateStorageBadge(idb) {
@@ -1864,6 +1905,11 @@ function saveDoctorName() {
   save();
 }
 
+function saveClinicName() {
+  clinicName = document.getElementById('setting-clinic-name').value.trim();
+  save();
+}
+
 function updateDoctorDisplay() {
   const disp = document.getElementById('header-doctor-display');
   const nameEl = document.getElementById('header-doctor-name');
@@ -1901,6 +1947,8 @@ function showPage(name) {
 
 function loadSettingsUI() {
   document.getElementById('setting-doctor-name').value = doctorName || '';
+  const clinicEl = document.getElementById('setting-clinic-name');
+  if (clinicEl) clinicEl.value = clinicName || '';
   renderLibraryCatTabs();
   renderLibrary();
 }
@@ -2919,6 +2967,8 @@ async function deleteMed(id) {
   if (selectedMed?.id===id) { clearCalcSelection(); }
   sessions.forEach(s => { s.drugIds = s.drugIds.filter(x=>x!==id); });
   renderSessionTabs();
+  // Record tombstone so deletion propagates to cloud on next sync
+  if (!deletedIds.meds.includes(id)) deletedIds.meds.push(id);
   save(); renderMedList(); toast('Deleted');
 }
 
@@ -3084,22 +3134,30 @@ function importData(e) {
 }
 
 async function clearAll() {
-  if(!await confirmDialog('Clear All Data', 'This will delete all medications, history, and settings. Cannot be undone.', '🗑️ Delete Everything')) return;
-  meds=[]; calcHistory=[]; sessions=[{id:uid(),label:'Patient 1',patientId:null,drugIds:[]}]; activeSessionIdx=0; doctorName='';
+  if(!await confirmDialog('Clear All Data', 'This will delete ALL medications, patients, history, and settings. Cannot be undone.', '🗑️ Delete Everything')) return;
+  meds=[]; calcHistory=[]; patients=[]; owners=[];
+  sessions=[{id:uid(),label:'Patient 1',patientId:null,drugIds:[]}]; activeSessionIdx=0;
+  doctorName=''; clinicName=''; deletedIds={ meds:[], patients:[] };
   // Wipe IDB directly
   if (db) {
     try {
       const tx = db.transaction('store','readwrite');
-      tx.objectStore('store').delete('vetdose_data');
+      const store = tx.objectStore('store');
+      store.delete('vetdose_data');
+      store.delete('vetdose_patients');
+      store.delete('vetdose_owners');
     } catch(e){}
   }
   // Wipe localStorage mirror
   ['vetdose_meds_v2','vetdose_history','vetdose_doctor','vetdose_schema_ver',
-   'vetdose_backup_ts','vetdose_meds'].forEach(k=>localStorage.removeItem(k));
+   'vetdose_backup_ts','vetdose_meds','vetdose_patients','vetdose_owners'].forEach(k=>localStorage.removeItem(k));
   await save();
+  await savePatients();
   updateStats(); renderMedList(); renderCalcList(); renderSessionTabs();
+  renderPatientList();
   updateDoctorDisplay();
   document.getElementById('setting-doctor-name').value='';
+  if (document.getElementById('setting-clinic-name')) document.getElementById('setting-clinic-name').value='';
   clearCalcSelection();
   document.getElementById('result-box').classList.remove('show');
   toast('All data cleared');
@@ -4386,8 +4444,7 @@ async function savePatients() {
     try { localStorage.setItem('vetdose_patients', JSON.stringify(patients)); } catch(e) { toast('⚠️ Storage full!','warn'); }
     try { localStorage.setItem('vetdose_owners', JSON.stringify(owners)); } catch(e) {}
   }
-  // Trigger background Gist sync (debounced)
-  scheduleGistSync();
+  // No auto-sync — user syncs manually via the Sync button
 }
 
 async function loadPatients() {
@@ -4718,6 +4775,7 @@ function openPatientDetail(pid) {
     </div>
     <div style="display:flex;gap:6px;margin-left:auto">
       <button class="btn btn-secondary btn-sm" onclick="printMedicalRecord('${p.id}')">🖨 PDF</button>
+      <button class="btn btn-secondary btn-sm" onclick="openCustomRxModal('${p.id}')">📋 Custom Rx</button>
       <button class="btn btn-secondary btn-sm" onclick="openEditPatientModal('${p.id}')">✏️ Edit</button>
     </div>
   </div>
@@ -4885,6 +4943,7 @@ function renderVisitCard(v, pid) {
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
         <div style="display:flex;gap:5px">
+          <button class="icon-btn" style="color:var(--accent2);border-color:rgba(74,159,240,0.3)" onclick="event.stopPropagation();printVisitRx('${pid}','${v.id}')" title="Print Prescription">🖨</button>
           <button class="icon-btn edit" onclick="event.stopPropagation();openEditVisitModal('${pid}','${v.id}')" title="Edit">✏️</button>
           <button class="icon-btn del" onclick="event.stopPropagation();deleteVisit('${pid}','${v.id}')" title="Delete">🗑</button>
         </div>
@@ -5061,7 +5120,10 @@ async function deletePatient(pid) {
   const ok = await confirmDialog('Delete Patient', `Delete ${p.name} and all their records? This cannot be undone.`, '🗑 Delete');
   if (!ok) return;
   patients = patients.filter(x => x.id !== pid);
+  // Record tombstone so deletion propagates to cloud on next sync
+  if (!deletedIds.patients.includes(pid)) deletedIds.patients.push(pid);
   savePatients();
+  save(); // persist deletedIds
   renderPatientList();
   if (document.getElementById('page-patient-detail').classList.contains('active')) showPage('patients');
   toast('Patient deleted', 'warn');
@@ -5759,6 +5821,8 @@ async function syncNow(silent = false) {
           owners = merged.owners;
           calcHistory = merged.history;
           if (merged.doctorName) doctorName = merged.doctorName;
+          if (merged.clinicName) clinicName = merged.clinicName;
+          deletedIds = merged.deletedIds || deletedIds;
           // Persist merged data locally too
           await save();
           await savePatients();
@@ -5795,7 +5859,7 @@ async function syncNow(silent = false) {
 }
 
 function buildGistPayload() {
-  return JSON.stringify({ version: 6, meds, calcHistory, patients, owners, doctorName, syncedAt: new Date().toISOString() });
+  return JSON.stringify({ version: 6, meds, calcHistory, patients, owners, doctorName, clinicName, deletedIds, syncedAt: new Date().toISOString() });
 }
 
 function ghHeaders(extra = {}) {
@@ -5888,10 +5952,19 @@ async function fetchGistContent() {
 }
 
 function mergeData(local, cloud) {
-  // ── Meds: merge by id only (name dedup was causing legitimate meds to be dropped)
-  const medMap = new Map(local.meds.map(m => [m.id, m]));
+  // ── Merge tombstone lists (union of both sides' deletions) ───
+  const localDelMeds = new Set(local.deletedIds?.meds || []);
+  const cloudDelMeds = new Set(cloud.deletedIds?.meds || []);
+  const allDelMeds = new Set([...localDelMeds, ...cloudDelMeds]);
+  const localDelPats = new Set(local.deletedIds?.patients || []);
+  const cloudDelPats = new Set(cloud.deletedIds?.patients || []);
+  const allDelPats = new Set([...localDelPats, ...cloudDelPats]);
+
+  // ── Meds: merge by id, skip tombstoned ids ───────────────────
+  const medMap = new Map(local.meds.filter(m => !allDelMeds.has(m.id)).map(m => [m.id, m]));
   let medsAdded = 0, medsUpdated = 0;
   for (const cm of cloud.meds) {
+    if (allDelMeds.has(cm.id)) continue; // deleted on either side
     if (medMap.has(cm.id)) {
       const lm = medMap.get(cm.id);
       const cloudNewer = cm.updatedAt && lm.updatedAt ? cm.updatedAt > lm.updatedAt : false;
@@ -5902,10 +5975,11 @@ function mergeData(local, cloud) {
     }
   }
 
-  // ── Patients: merge by id, merge visits within each patient ─────
-  const patMap = new Map(local.patients.map(p => [p.id, JSON.parse(JSON.stringify(p))]));
+  // ── Patients: merge by id, skip tombstoned ──────────────────────
+  const patMap = new Map(local.patients.filter(p => !allDelPats.has(p.id)).map(p => [p.id, JSON.parse(JSON.stringify(p))]));
   let patsAdded = 0, visitsAdded = 0;
   for (const cp of cloud.patients) {
+    if (allDelPats.has(cp.id)) continue; // deleted on either side
     if (!patMap.has(cp.id)) { patMap.set(cp.id, cp); patsAdded++; }
     else {
       const lp = patMap.get(cp.id);
@@ -5939,6 +6013,8 @@ function mergeData(local, cloud) {
     owners: [...ownerMap.values()],
     history: [...histMap.values()].sort((a, b) => (b.ts||'') > (a.ts||'') ? 1 : -1),
     doctorName: cloud.doctorName || local.doctorName,
+    clinicName: cloud.clinicName || local.clinicName,
+    deletedIds: { meds: [...allDelMeds], patients: [...allDelPats] },
     stats: { medsAdded, medsUpdated, patsAdded, visitsAdded, histAdded }
   };
 }
@@ -6001,6 +6077,8 @@ async function pullFromGist() {
     owners = merged.owners;
     calcHistory = merged.history;
     if (merged.doctorName) doctorName = merged.doctorName;
+    if (merged.clinicName) clinicName = merged.clinicName;
+    deletedIds = merged.deletedIds || deletedIds;
     await save();
     await savePatients();
     linkLibraryDrugContras(); updateDoctorDisplay();
@@ -6097,6 +6175,93 @@ function updateSyncStatusUI(state) {
 }
 
 // ─── PRESCRIPTION PDF / PRINT ─────────────────────────────
+function rxClinicName() {
+  return clinicName || (doctorName ? (/^dr\.?\s/i.test(doctorName) ? doctorName : 'Dr. ' + doctorName) : 'VetDose Clinic');
+}
+
+function friendlyRoute(route) {
+  if (!route) return '';
+  const r = route.toLowerCase();
+  if (r.includes('oral') || r === 'po') return 'by mouth';
+  if (r === 'sc' || r.includes('subcutan')) return 'injection under the skin';
+  if (r === 'im' || r.includes('intramuscul')) return 'muscle injection';
+  if (r === 'iv' || r.includes('intravenous')) return 'IV injection';
+  if (r.includes('topical')) return 'applied to skin';
+  if (r.includes('eye') || r.includes('ophthal')) return 'in the eye';
+  if (r.includes('ear') || r.includes('otic')) return 'in the ear';
+  return route;
+}
+
+function friendlyFreq(freq) {
+  if (!freq) return '';
+  const f = freq.trim().toUpperCase();
+  if (f === 'SID' || f === 'Q24H' || f === 'QD' || f === '1X/DAY') return 'once daily';
+  if (f === 'BID' || f === 'Q12H' || f === '2X/DAY') return 'twice daily';
+  if (f === 'TID' || f === 'Q8H'  || f === '3X/DAY') return 'three times daily';
+  if (f === 'QID' || f === 'Q6H'  || f === '4X/DAY') return 'four times daily';
+  if (f === 'EOD' || f === 'Q48H') return 'every other day';
+  if (f === 'Q72H') return 'every 3 days';
+  if (f === 'QWK' || f === 'Q7D') return 'once a week';
+  return freq.toLowerCase();
+}
+
+function buildOwnerDrug(d) {
+  // If it's a structured drug object (from calculator), use its fields directly
+  if (!d.raw) {
+    const instrs = [];
+    const routeStr = friendlyRoute(d.route);
+    const freqStr = friendlyFreq(d.freq);
+    if (d.volume) instrs.push(`Give ${d.volume}${routeStr ? ' — ' + routeStr : ''}`);
+    else if (d.totalDose) instrs.push(`Give ${d.totalDose}${routeStr ? ' — ' + routeStr : ''}`);
+    if (freqStr) instrs.push(freqStr.charAt(0).toUpperCase() + freqStr.slice(1));
+    if (d.duration) instrs.push(`for ${d.duration}`);
+    return { displayName: d.name, instrs };
+  }
+
+  // Parse raw string like:
+  // "Metoclopramide (Primperan / Plasil) 0.92mg (0.2mg/kg × 4.6kg, SC) = 0.18ml TID"
+  // "Amoxicillin 250mg PO BID × 7 days"
+  // "Dexamethasone 1ml IV SID"
+  const raw = d.raw.trim();
+
+  // Extract drug name: everything before the first number that starts a dose
+  const nameMatch = raw.match(/^([A-Za-z][^0-9(=]+(?:\([^)]*\))?[^0-9(=]*?)(?:\s+[\d.]+\s*(?:mg|ml|mcg|iu|g|µg)|$)/i);
+  let name = nameMatch ? nameMatch[1].trim() : raw;
+  // Clean trailing punctuation from name
+  name = name.replace(/[\s,;:]+$/, '');
+
+  // Extract volume (ml) — prefer the = 0.18ml style, fallback to standalone
+  const volMatch = raw.match(/=\s*([\d.]+\s*ml)/i) || raw.match(/([\d.]+\s*ml)/i);
+  const volume = volMatch ? volMatch[1].replace(/\s+/, '') : null;
+
+  // Extract route
+  const routeMatch = raw.match(/\b(SC|IM|IV|PO|oral|topical|ophthalmic|otic|SQ|subcutan\w*|intramus\w*|intravenous\w*)\b/i);
+  const route = routeMatch ? routeMatch[1] : null;
+
+  // Extract frequency — look for TID, BID, SID, QID, QD, EOD etc.
+  const freqMatch = raw.match(/\b(TID|BID|SID|QID|QD|EOD|Q\d+H|Q\d+D|once daily|twice daily|three times daily|four times daily|every other day|once a week)\b/i);
+  const freq = freqMatch ? freqMatch[1] : null;
+
+  // Extract duration — "× 7 days", "for 5 days", "x 10 days"
+  const durMatch = raw.match(/[×x]\s*(\d+\s*days?)/i) || raw.match(/for\s+(\d+\s*days?)/i);
+  const duration = durMatch ? durMatch[1] : null;
+
+  const instrs = [];
+  const routeStr = route ? friendlyRoute(route) : '';
+  const freqStr = freq ? friendlyFreq(freq) : '';
+
+  if (volume) instrs.push(`Give ${volume}${routeStr ? ' — ' + routeStr : ''}`);
+  else if (routeStr) instrs.push(`Give ${routeStr}`);
+
+  if (freqStr) instrs.push(freqStr.charAt(0).toUpperCase() + freqStr.slice(1));
+  if (duration) instrs.push(`For ${duration}`);
+
+  // If we couldn't parse anything useful, fall back to the raw string as name only
+  if (!volume && !freq && !route) return { displayName: raw, instrs: [] };
+
+  return { displayName: name, instrs };
+}
+
 function printCalcRx() {
   if (!selectedMed || !selectedRoute || !selectedCase) return toast('No result to print', 'error');
   const rawW = parseFloat(document.getElementById('calc-weight')?.value || '0');
@@ -6108,17 +6273,17 @@ function printCalcRx() {
   const volMl = conc ? (selectedCase.dose * rawW / conc).toFixed(2) : null;
   const freq = selectedCase.freq || selectedRoute.freq || '';
   printRxDocument({
-    clinicName: doctorName ? 'Dr. ' + doctorName : 'VetDose Clinic',
+    clinicName: rxClinicName(),
     date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
     patient: { name: patientId, species: calcSpecies==='dog'?'Dog':'Cat', weight: rawW, breed: regPat?.breed||'', age: regPat?.age||'' },
     owner: owner ? { name: owner.name, phone: owner.phone } : null,
     drugs: [{
       name: selectedMed.name + (selectedMed.brand ? ' (' + selectedMed.brand + ')' : ''),
-      dosePerKg: selectedCase.dose,
-      totalDose: doseMg + ' mg',
       volume: volMl ? volMl + ' ml' : null,
+      totalDose: doseMg + ' mg',
       route: selectedRoute.route,
-      freq, duration: selectedCase.label && selectedCase.label !== 'Standard' ? selectedCase.label : ''
+      freq,
+      duration: selectedCase.label && selectedCase.label !== 'Standard' ? selectedCase.label : ''
     }]
   });
 }
@@ -6132,7 +6297,7 @@ function previewAndPrintRx() {
   const diagnosis = gv('a-diagnosis') || gv('vm-diagnosis');
   const drugs = drugsText.split('\n').filter(Boolean).map(line => ({ raw: line }));
   printRxDocument({
-    clinicName: doctorName ? 'Dr. ' + doctorName : 'VetDose Clinic',
+    clinicName: rxClinicName(),
     date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
     patient: { name: p.name, species: p.species==='dog'?'Dog':p.species==='cat'?'Cat':'Other', weight: p.weight||gv('o-weight')||'?', breed: p.breed||'', age: p.age||'' },
     owner: owner ? { name: owner.name, phone: owner.phone } : null,
@@ -6141,16 +6306,73 @@ function previewAndPrintRx() {
   });
 }
 
+function printVisitRx(pid, vid) {
+  const p = patients.find(x => x.id === pid);
+  if (!p) return toast('Patient not found', 'error');
+  const v = (p.visits||[]).find(x => x.id === vid);
+  if (!v) return toast('Visit not found', 'error');
+  const owner = p.ownerId ? owners.find(o => o.id === p.ownerId) : null;
+  const plan = v.soap?.p || {};
+  const diag = v.diagnosis || v.soap?.a?.diagnosis || '';
+  const drugs = (plan.drugs || v.treatment || '').split('\n').filter(Boolean).map(line => ({ raw: line }));
+  if (!drugs.length) return toast('No medications recorded for this visit', 'warn');
+  printRxDocument({
+    clinicName: rxClinicName(),
+    date: v.date ? new Date(v.date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+    patient: { name: p.name, species: p.species==='dog'?'Dog':p.species==='cat'?'Cat':'Other', weight: v.soap?.o?.weight || p.weight || '?', breed: p.breed||'', age: p.age||'' },
+    owner: owner ? { name: owner.name, phone: owner.phone } : null,
+    diagnosis: diag,
+    notes: v.followupInstr || '',
+    drugs
+  });
+}
+
+let customRxPatientId = null;
+function openCustomRxModal(pid) {
+  customRxPatientId = pid;
+  setVal('crx-diagnosis', '');
+  setVal('crx-drugs', '');
+  setVal('crx-notes', '');
+  document.getElementById('crx-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('custom-rx-modal').classList.add('show');
+}
+
+function printCustomRx() {
+  const pid = customRxPatientId;
+  const p = patients.find(x => x.id === pid);
+  if (!p) return toast('Patient not found', 'error');
+  const owner = p.ownerId ? owners.find(o => o.id === p.ownerId) : null;
+  const drugs = gv('crx-drugs').split('\n').filter(Boolean).map(line => ({ raw: line }));
+  if (!drugs.length) return toast('Add at least one medication', 'warn');
+  const dateVal = document.getElementById('crx-date').value;
+  const dateStr = dateVal ? new Date(dateVal).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('custom-rx-modal').classList.remove('show');
+  printRxDocument({
+    clinicName: rxClinicName(),
+    date: dateStr,
+    patient: { name: p.name, species: p.species==='dog'?'Dog':p.species==='cat'?'Cat':'Other', weight: p.weight||'?', breed: p.breed||'', age: p.age||'' },
+    owner: owner ? { name: owner.name, phone: owner.phone } : null,
+    diagnosis: gv('crx-diagnosis'),
+    notes: gv('crx-notes'),
+    drugs
+  });
+}
+
 function printRxDocument(data) {
-  const drugsHtml = (data.drugs||[]).map(d => {
-    if (d.raw) return `<tr><td colspan="4" style="padding:8px 4px;border-bottom:1px solid #e0e0e0;font-size:14px">${d.raw}</td></tr>`;
-    return `<tr style="border-bottom:1px solid #e0e0e0">
-      <td style="padding:8px 4px;font-weight:600">${d.name}</td>
-      <td style="padding:8px 4px;font-family:monospace">${d.dosePerKg} mg/kg</td>
-      <td style="padding:8px 4px;font-family:monospace">${d.totalDose}${d.volume?' = '+d.volume:''}</td>
-      <td style="padding:8px 4px">${d.route}${d.freq?' '+d.freq:''}${d.duration?' × '+d.duration:''}</td>
-    </tr>`;
+  const drugsHtml = (data.drugs||[]).map((d, i) => {
+    const drug = buildOwnerDrug(d);
+    return `<div class="rx-drug-card">
+      <div class="rx-drug-num">${i+1}</div>
+      <div class="rx-drug-body">
+        <div class="rx-drug-name">${drug.displayName}</div>
+        ${drug.instrs.map((instr, ii) =>
+          `<div class="rx-drug-${ii===0?'dose':'instr'}">${ii===0?'':'📅 '}${instr}</div>`
+        ).join('')}
+      </div>
+    </div>`;
   }).join('');
+
+  const doctorLine = doctorName ? (/^dr\.?\s/i.test(doctorName) ? doctorName : 'Dr. ' + doctorName) : '';
 
   const w = window.open('', '_blank', 'width=700,height=900');
   if (!w) { toast('Allow popups to print', 'warn'); return; }
@@ -6160,56 +6382,114 @@ function printRxDocument(data) {
 <meta charset="UTF-8">
 <title>Prescription — ${data.patient.name}</title>
 <style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; color: #111; background: #fff; }
-  .rx-page { max-width: 720px; margin: 0 auto; padding: 32px 40px; }
-  .rx-header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid #1a73e8; padding-bottom: 16px; margin-bottom: 24px; }
-  .clinic-name { font-size: 22px; font-weight: 800; color: #1a73e8; }
-  .clinic-sub { font-size: 13px; color: #666; margin-top: 3px; }
-  .rx-date { font-size: 13px; color: #555; text-align: right; }
-  .patient-box { background: #f8faff; border: 1px solid #dbe8ff; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .pt-row { font-size: 13px; } .pt-label { color: #777; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; } .pt-val { font-weight: 700; font-size: 14px; }
-  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
-  .rx-symbol { font-size: 40px; color: #1a73e8; font-weight: 900; line-height: 1; margin-bottom: 8px; }
-  table { width: 100%; border-collapse: collapse; }
-  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; text-align: left; padding: 6px 4px; border-bottom: 2px solid #e0e0e0; }
-  .rx-footer { margin-top: 40px; border-top: 1px solid #e0e0e0; padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .signature-line { border-top: 1px solid #333; width: 200px; text-align: center; padding-top: 6px; font-size: 12px; color: #555; }
-  .stamp-area { width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #ccc; }
-  @media print { body { padding: 0; } .rx-page { padding: 16px 24px; } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #111; background: #fff; }
+  .rx-page { max-width: 680px; margin: 0 auto; padding: 30px 36px; }
+
+  /* Header */
+  .rx-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 3px solid #1565c0; margin-bottom: 20px; }
+  .clinic-block {}
+  .clinic-name { font-size: 20px; font-weight: 800; color: #1565c0; }
+  .clinic-sub { font-size: 12px; color: #555; margin-top: 2px; }
+  .rx-meta { text-align: right; font-size: 12px; color: #555; line-height: 1.6; }
+  .rx-meta strong { color: #111; }
+
+  /* Patient box */
+  .patient-box { background: #f0f4ff; border: 1px solid #c5d3f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pt-field { }
+  .pt-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #7986a3; }
+  .pt-val { font-size: 14px; font-weight: 700; color: #111; margin-top: 1px; }
+  .pt-full { grid-column: 1 / -1; }
+
+  /* Diagnosis */
+  .dx-box { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 14px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
+  .dx-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #a07800; margin-bottom: 3px; }
+
+  /* Rx symbol + title */
+  .rx-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .rx-symbol { font-size: 36px; font-weight: 900; color: #1565c0; line-height: 1; }
+  .rx-section-title { font-size: 13px; font-weight: 700; color: #333; letter-spacing: 0.5px; }
+
+  /* Drug cards */
+  .rx-drug-card { display: flex; gap: 12px; align-items: flex-start; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .rx-drug-num { width: 26px; height: 26px; background: #1565c0; color: #fff; font-weight: 800; font-size: 13px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .rx-drug-body { flex: 1; }
+  .rx-drug-name { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; }
+  .rx-drug-dose { font-size: 13px; color: #333; margin-bottom: 3px; }
+  .rx-drug-instr { font-size: 12px; color: #555; background: #eef2ff; border-radius: 4px; padding: 3px 8px; display: inline-block; margin-top: 4px; }
+
+  /* Notes */
+  .notes-box { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 14px; margin-top: 16px; font-size: 13px; color: #444; }
+  .notes-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+
+  /* Footer */
+  .rx-footer { margin-top: 36px; border-top: 1px solid #ddd; padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .signature-block { }
+  .signature-line { border-top: 1px solid #333; width: 180px; padding-top: 5px; font-size: 12px; color: #555; }
+  .stamp-area { width: 72px; height: 72px; border: 2px dashed #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #aaa; text-align: center; }
+  .powered-by { text-align: center; margin-top: 16px; font-size: 10px; color: #bbb; }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rx-page { padding: 16px 20px; }
+  }
 </style>
 </head>
 <body>
 <div class="rx-page">
+
   <div class="rx-header">
-    <div>
+    <div class="clinic-block">
       <div class="clinic-name">${data.clinicName}</div>
-      <div class="clinic-sub">Veterinary Prescription</div>
+      <div class="clinic-sub">${doctorLine && data.clinicName !== doctorLine ? doctorLine + ' · ' : ''}Veterinary Prescription</div>
     </div>
-    <div class="rx-date"><strong>Date:</strong> ${data.date}</div>
+    <div class="rx-meta">
+      <div><strong>Date:</strong> ${data.date}</div>
+    </div>
   </div>
 
   <div class="patient-box">
-    <div class="pt-row"><div class="pt-label">Patient</div><div class="pt-val">${data.patient.name}</div></div>
-    <div class="pt-row"><div class="pt-label">Species / Breed</div><div class="pt-val">${data.patient.species}${data.patient.breed?' — '+data.patient.breed:''}</div></div>
-    <div class="pt-row"><div class="pt-label">Weight</div><div class="pt-val">${data.patient.weight} kg</div></div>
-    <div class="pt-row"><div class="pt-label">Age</div><div class="pt-val">${data.patient.age||'—'}</div></div>
-    ${data.owner ? `<div class="pt-row" style="grid-column:1/-1"><div class="pt-label">Owner</div><div class="pt-val">${data.owner.name}${data.owner.phone?' · '+data.owner.phone:''}</div></div>` : ''}
-    ${data.diagnosis ? `<div class="pt-row" style="grid-column:1/-1"><div class="pt-label">Diagnosis</div><div class="pt-val">${data.diagnosis}</div></div>` : ''}
+    <div class="pt-field">
+      <div class="pt-label">Patient</div>
+      <div class="pt-val">${data.patient.name}</div>
+    </div>
+    <div class="pt-field">
+      <div class="pt-label">Species / Breed</div>
+      <div class="pt-val">${data.patient.species}${data.patient.breed ? ' · ' + data.patient.breed : ''}</div>
+    </div>
+    <div class="pt-field">
+      <div class="pt-label">Weight</div>
+      <div class="pt-val">${data.patient.weight} kg</div>
+    </div>
+    <div class="pt-field">
+      <div class="pt-label">Age</div>
+      <div class="pt-val">${data.patient.age || '—'}</div>
+    </div>
+    ${data.owner ? `<div class="pt-field pt-full">
+      <div class="pt-label">Owner</div>
+      <div class="pt-val">${data.owner.name}${data.owner.phone ? ' · ' + data.owner.phone : ''}</div>
+    </div>` : ''}
   </div>
 
-  <div class="rx-symbol">℞</div>
-  <div class="section-title">Prescribed Medications</div>
-  <table>
-    <thead><tr><th>Drug</th><th>Dose/kg</th><th>Total Dose</th><th>Instructions</th></tr></thead>
-    <tbody>${drugsHtml}</tbody>
-  </table>
+  ${data.diagnosis ? `<div class="dx-box"><div class="dx-label">Diagnosis / Condition</div>${data.diagnosis}</div>` : ''}
+
+  <div class="rx-title-row">
+    <div class="rx-symbol">℞</div>
+    <div class="rx-section-title">PRESCRIBED MEDICATIONS</div>
+  </div>
+
+  ${drugsHtml}
+
+  ${data.notes ? `<div class="notes-box"><div class="notes-label">Additional Instructions</div>${data.notes}</div>` : ''}
 
   <div class="rx-footer">
-    <div>
-      <div class="signature-line">${data.clinicName}</div>
+    <div class="signature-block">
+      <div class="signature-line">${doctorLine || data.clinicName}</div>
     </div>
     <div class="stamp-area">STAMP</div>
   </div>
+
+  <div class="powered-by">Generated by VetDose</div>
 </div>
 <script>window.onload=function(){window.print()}<\/script>
 </body>
@@ -6398,7 +6678,9 @@ function printFallback(text) {
     initDragDrop();
     updateStats();
     updateSyncStatusUI();
-    appReady = true; // allow background syncs now that data is loaded
+    appReady = true; // allow manual syncs now that data is loaded
+    // Sync once on open if token is configured (silent — won't show error toasts)
+    if (ghToken) setTimeout(() => syncNow(true), 1500);
   } catch(e) {
     console.error('Init failed:', e);
     showFatalError('VetDose failed to start. Your data is safe — please reload. (' + (e?.message||'unknown error') + ')');
