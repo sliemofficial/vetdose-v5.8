@@ -554,12 +554,26 @@
     <button class="msb-btn" onclick="event.stopPropagation();syncNow()">⟳ Sync</button>
   </div>
 
+  <!-- CALC MODE TABS: Drugs vs Fluids -->
+  <div style="display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px">
+    <button id="cmode-drugs" onclick="setCalcMode('drugs')"
+      style="flex:1;padding:11px;background:var(--accent);color:var(--bg);border:none;font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s">
+      💊 Drug Dose
+    </button>
+    <button id="cmode-fluids" onclick="setCalcMode('fluids')"
+      style="flex:1;padding:11px;background:transparent;color:var(--muted);border:none;font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s">
+      💧 Fluids
+    </button>
+  </div>
+
   <!-- SESSION TABS BAR -->
   <div class="card" id="session-tabs-card" style="padding:0;overflow:hidden">
     <div id="session-tabs-bar" style="display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;background:var(--surface2);border-bottom:1px solid var(--border)"></div>
     <div id="session-tab-content" style="padding:12px 14px 10px"></div>
   </div>
 
+  <!-- DRUG DOSE PANEL -->
+  <div id="calc-mode-drugs">
   <!-- CALCULATOR CARD -->
   <div class="card" id="calc-card">
 
@@ -658,12 +672,198 @@
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <button class="btn btn-secondary btn-sm" style="flex:1" onclick="shareResult()">Share</button>
           <button class="btn btn-secondary btn-sm" style="flex:1;color:var(--accent2);border-color:var(--accent2)" onclick="printCalcRx()">🖨 Rx PDF</button>
-          <button class="btn btn-secondary btn-sm" style="flex:1;color:var(--accent);border-color:var(--accent)" id="save-to-patient-btn" onclick="saveCalcToPatient()" style="display:none">📋 Patient</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;color:var(--accent);border-color:var(--accent);display:none" id="save-to-patient-btn" onclick="saveCalcToPatient()">📋 Patient</button>
           <button class="btn btn-secondary btn-sm" onclick="clearCalcForm()" title="New calculation">✕</button>
         </div>
       </div>
+    </div><!-- /calc-form-inner -->
+  </div><!-- /calc-card -->
+  </div><!-- /calc-mode-drugs -->
+
+  <!-- FLUIDS PANEL -->
+  <div id="calc-mode-fluids" style="display:none">
+  <!-- ══ FLUID CALCULATORS CARD ══ -->
+  <div class="card" id="fluid-calc-card" style="margin-top:0">
+    <div class="section-header" style="margin-bottom:12px">
+      <div class="section-title">💧 Fluid Calculators</div>
     </div>
-  </div>
+
+    <!-- TYPE SELECTOR (menu) -->
+    <div id="fluid-menu" style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-secondary" style="text-align:left;padding:14px 16px;display:flex;align-items:center;gap:12px" onclick="fluidShowScreen('basic')">
+        <span style="font-size:22px">💧</span>
+        <div><div style="font-weight:800;font-size:15px">Basic Rate</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Weight × rate (ml/kg/hr)</div></div>
+      </button>
+      <button class="btn btn-secondary" style="text-align:left;padding:14px 16px;display:flex;align-items:center;gap:12px" onclick="fluidShowScreen('comprehensive')">
+        <span style="font-size:22px">📊</span>
+        <div><div style="font-weight:800;font-size:15px">Comprehensive Rate</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Deficit + maintenance + ongoing losses</div></div>
+      </button>
+      <button class="btn btn-secondary" style="text-align:left;padding:14px 16px;display:flex;align-items:center;gap:12px" onclick="fluidShowScreen('potassium')">
+        <span style="font-size:22px">K⁺</span>
+        <div><div style="font-weight:800;font-size:15px">Potassium Infusion</div><div style="font-size:11px;color:var(--muted);margin-top:2px">KCl supplementation by serum K⁺</div></div>
+      </button>
+    </div>
+
+    <!-- ── BASIC RATE SCREEN ── -->
+    <div id="fluid-screen-basic" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <button onclick="fluidShowMenu()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:0">←</button>
+        <div style="font-weight:800;font-size:15px">Basic Rate</div>
+      </div>
+
+      <div class="field">
+        <label>PATIENT (optional — to save to record)</label>
+        <div class="patient-wrap">
+          <input type="text" id="fb-patient" placeholder="Search patient name…" autocomplete="off"
+            oninput="onFluidPatientInput('fb-patient','fb-patient-suggestions')"
+            onfocus="onFluidPatientFocus('fb-patient','fb-patient-suggestions')"
+            onblur="onFluidPatientBlur('fb-patient-suggestions')">
+          <div class="patient-suggestions" id="fb-patient-suggestions"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>WEIGHT (kg)</label>
+        <input type="number" id="fb-weight" placeholder="e.g. 5.5" step="0.1" min="0.1">
+      </div>
+      <div class="field">
+        <label>RATE (ml/kg/hr)</label>
+        <input type="number" id="fb-rate" placeholder="e.g. 10" step="0.1" min="0">
+      </div>
+      <div class="field">
+        <label>GIVING SET</label>
+        <select id="fb-drip" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px">
+          <option value="0">None (ml/hr only)</option>
+          <option value="20">20 drops/ml</option>
+          <option value="60">60 drops/ml</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="fluidCalcBasic()">Calculate</button>
+      <div id="fb-result" style="display:none;margin-top:14px;padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)"></div>
+    </div>
+
+    <!-- ── COMPREHENSIVE SCREEN ── -->
+    <div id="fluid-screen-comprehensive" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <button onclick="fluidShowMenu()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:0">←</button>
+        <div style="font-weight:800;font-size:15px">Comprehensive Rate</div>
+      </div>
+
+      <div class="field">
+        <label>PATIENT (optional — to save to record)</label>
+        <div class="patient-wrap">
+          <input type="text" id="fc-patient" placeholder="Search patient name…" autocomplete="off"
+            oninput="onFluidPatientInput('fc-patient','fc-patient-suggestions')"
+            onfocus="onFluidPatientFocus('fc-patient','fc-patient-suggestions')"
+            onblur="onFluidPatientBlur('fc-patient-suggestions')">
+          <div class="patient-suggestions" id="fc-patient-suggestions"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>WEIGHT (kg)</label>
+        <input type="number" id="fc-weight" placeholder="e.g. 7.25" step="0.1" min="0.1">
+      </div>
+      <div class="field">
+        <label>AMOUNT DEHYDRATED (%)</label>
+        <input type="number" id="fc-dehyd" placeholder="e.g. 5" step="0.5" min="0" max="15">
+      </div>
+      <div class="field">
+        <label>ONGOING LOSSES</label>
+        <!-- Quick-log buttons -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+          <button onclick="logLoss('vomiting',5)" style="padding:6px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">🤢 Vomit</button>
+          <button onclick="logLoss('diarrhea',10)" style="padding:6px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">💩 Diarrhea</button>
+          <button onclick="logLoss('bleeding',15)" style="padding:6px 11px;border-radius:20px;border:1px solid var(--border);background:rgba(240,74,106,0.15);color:var(--danger);border-color:var(--danger);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">🩸 Bleeding</button>
+          <button onclick="logLoss('salivation',3)" style="padding:6px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">💦 Salivation</button>
+          <button onclick="logLoss('urine',8)" style="padding:6px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">🚽 Urine</button>
+          <button onclick="logLoss('wound drainage',10)" style="padding:6px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">🩹 Wound</button>
+          <button onclick="logLoss('other',5)" style="padding:6px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">＋ Other</button>
+        </div>
+        <!-- Logged losses list -->
+        <div id="fc-loss-log" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+            <span>Logged Losses</span>
+            <button onclick="clearLossLog()" style="background:none;border:none;color:var(--danger);font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:700">Clear all</button>
+          </div>
+          <div id="fc-loss-items" style="display:flex;flex-direction:column;gap:5px"></div>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:var(--muted)">Total ongoing losses</span>
+            <span id="fc-loss-total" style="font-size:16px;font-weight:800;color:var(--warn);font-family:var(--mono)">0 ml/hr</span>
+          </div>
+        </div>
+        <!-- Manual override -->
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="fc-losses" placeholder="Or enter ml/hr directly" step="1" min="0" oninput="onManualLossInput()" style="flex:1">
+          <div id="fc-loss-badge" style="display:none;background:rgba(240,168,74,0.15);border:1px solid var(--warn);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:800;color:var(--warn);white-space:nowrap;font-family:var(--mono)">0 ml/hr</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Tap quick-log buttons to auto-calculate, or type a number directly.</div>
+      </div>
+      <div class="field">
+        <label>REPLACE DEFICIT OVER (hours)</label>
+        <input type="number" id="fc-time" placeholder="e.g. 4" step="0.5" min="0.5">
+      </div>
+      <div class="field">
+        <label>MAINTENANCE RATE</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+          <div style="flex:1;font-size:13px;color:var(--warn)">Calculate with formula<br><span style="color:var(--muted);font-size:11px">(Otherwise: 2 ml/kg/hr)</span></div>
+          <button id="fc-formula-btn" onclick="fluidToggleFormula()" style="padding:8px 16px;border-radius:8px;border:2px solid var(--accent2);background:var(--surface2);color:var(--text);font-weight:800;font-size:13px;cursor:pointer">YES</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>GIVING SET</label>
+        <select id="fc-drip" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px">
+          <option value="0">None (ml/hr only)</option>
+          <option value="20">20 drops/ml</option>
+          <option value="60">60 drops/ml</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="fluidCalcComprehensive()">Calculate</button>
+      <div id="fc-result" style="display:none;margin-top:14px;padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)"></div>
+    </div>
+
+    <!-- ── POTASSIUM INFUSION SCREEN ── -->
+    <div id="fluid-screen-potassium" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <button onclick="fluidShowMenu()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:0">←</button>
+        <div style="font-weight:800;font-size:15px">Potassium Infusion</div>
+      </div>
+
+      <div class="field">
+        <label>PATIENT (optional — to save to record)</label>
+        <div class="patient-wrap">
+          <input type="text" id="fp-patient" placeholder="Search patient name…" autocomplete="off"
+            oninput="onFluidPatientInput('fp-patient','fp-patient-suggestions')"
+            onfocus="onFluidPatientFocus('fp-patient','fp-patient-suggestions')"
+            onblur="onFluidPatientBlur('fp-patient-suggestions')">
+          <div class="patient-suggestions" id="fp-patient-suggestions"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>SERUM POTASSIUM (mmol/L)</label>
+        <select id="fp-krange" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px">
+          <option value="3.5-5.0">3.5 – 5.0 (Normal)</option>
+          <option value="3.0-3.5">3.0 – 3.5</option>
+          <option value="2.5-3.0">2.5 – 3.0</option>
+          <option value="2.0-2.5">2.0 – 2.5</option>
+          <option value="<2.0">&lt;2.0 (Severe)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>FLUID BAG SIZE (ml)</label>
+        <select id="fp-bagsize" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px">
+          <option value="250">250 ml</option>
+          <option value="500">500 ml</option>
+          <option value="1000">1000 ml</option>
+        </select>
+        <div style="margin-top:6px;font-size:12px;color:var(--warn)">Use an isotonic fluid such as 0.9% NaCL</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="fluidCalcPotassium()">Calculate</button>
+      <div id="fp-result" style="display:none;margin-top:14px;padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)"></div>
+    </div>
+
+  </div><!-- /fluid-calc-card -->
+  <!-- ══ END FLUID CALCULATORS ══ -->
+  </div><!-- /calc-mode-fluids -->
+
 </div>
 <!-- MEDS PAGE -->
 <div class="page" id="page-meds">
@@ -861,6 +1061,25 @@
     <div class="field"><label>GIST ID (leave blank to create new)</label>
       <input type="text" id="gh-gist-id" placeholder="Auto-created on first sync">
     </div>
+
+    <!-- Sync mode row -->
+    <div style="background:rgba(74,240,176,0.07);border:1px solid rgba(74,240,176,0.25);border-radius:10px;padding:12px 13px;margin-bottom:11px">
+      <div style="font-size:12px;font-weight:800;color:var(--accent);margin-bottom:4px">📤 Local-First Sync</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">Your device is always the source of truth. Syncing <b style="color:var(--text)">pushes your data to the cloud</b> first. Cloud data is only merged in — it will never overwrite your local data.</div>
+    </div>
+
+    <!-- Auto-sync toggle -->
+    <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 13px;margin-bottom:11px">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700">Auto-Sync</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="autosync-status-text">Syncs automatically 3s after any change</div>
+      </div>
+      <button id="autosync-toggle-btn" onclick="toggleAutoSync()"
+        style="padding:7px 16px;border-radius:8px;border:2px solid var(--accent);background:rgba(74,240,176,0.1);color:var(--accent);font-weight:800;font-size:13px;cursor:pointer;font-family:var(--sans);transition:all 0.2s">
+        ON
+      </button>
+    </div>
+
     <div id="sync-status-row" style="margin-bottom:11px">
       <div class="sync-row">
         <div class="sync-dot" id="sync-dot"></div>
@@ -1343,7 +1562,7 @@
     </div>
 
     <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px" id="visit-picker-new-label">Or Start New Visit</div>
-    <button class="btn btn-primary" onclick="visitPickerNewVisit()" style="margin-bottom:10px">＋ New Visit</button>
+    <button class="btn btn-primary" onclick="visitPickerNewVisitAuto()" style="margin-bottom:10px">＋ New Visit</button>
     <button class="btn btn-secondary" onclick="document.getElementById('visit-picker-modal').classList.remove('show')">Cancel</button>
   </div>
 </div>
@@ -2589,6 +2808,7 @@ function calculate() {
 let _pendingDrugLine = '';
 let _pendingPatientId = '';
 let _pendingWeight = 0;
+let _visitPickerMode = 'drug'; // 'drug' | 'fluid'
 
 function saveCalcToPatient() {
   if (!selectedMed || !selectedRoute || !selectedCase) return toast('No result to save','error');
@@ -2606,6 +2826,7 @@ function saveCalcToPatient() {
   _pendingDrugLine = drugLine;
   _pendingPatientId = regPat.id;
   _pendingWeight = rawW;
+  _visitPickerMode = 'drug';
 
   // Find today's visits for this patient
   const todayStr = new Date().toISOString().slice(0,10);
@@ -5774,89 +5995,7 @@ async function resetGistId() {
 let gistSyncTimer = null;
 let appReady = false; // set true after init completes
 let syncInProgress = false; // prevent scheduleGistSync from re-triggering during an active sync
-function scheduleGistSync() {
-  if (!ghToken || !appReady || syncInProgress) return;
-  clearTimeout(gistSyncTimer);
-  gistSyncTimer = setTimeout(() => syncNow(true), 3000);
-}
-
-async function syncNow(silent = false) {
-  if (!ghToken) { if (!silent) toast('Enter GitHub token first', 'error'); return; }
-  if (syncBusy) return;
-  syncBusy = true;
-  syncInProgress = true;
-  updateSyncStatusUI('busy');
-  try {
-    // Reload fresh data from IDB first
-    if (usingIDB) {
-      const fresh = await idbGet('vetdose_data');
-      if (fresh && Array.isArray(fresh.meds) && fresh.meds.length > 0) {
-        meds = fresh.meds.map(ensureV3Fields);
-        calcHistory = fresh.history || calcHistory;
-        doctorName = fresh.doctorName || doctorName;
-      }
-      const freshP = await idbGet('vetdose_patients');
-      if (Array.isArray(freshP) && freshP.length > 0) patients = freshP;
-      const freshO = await idbGet('vetdose_owners');
-      if (Array.isArray(freshO) && freshO.length > 0) owners = freshO;
-    }
-
-    // If gist already exists, merge with cloud before pushing (safe sync)
-    if (ghGistId) {
-      try {
-        const cloudData = await fetchGistContent();
-        const cloudMeds = Array.isArray(cloudData.meds) ? cloudData.meds : [];
-        const cloudPatients = Array.isArray(cloudData.patients) ? cloudData.patients : [];
-        const cloudHasData = cloudMeds.length > 0 || cloudPatients.length > 0;
-        if (cloudHasData) {
-          const merged = mergeData(
-            { meds, patients, owners, history: calcHistory, doctorName },
-            { meds: cloudMeds.map(ensureV3Fields), patients: cloudPatients,
-              owners: Array.isArray(cloudData.owners) ? cloudData.owners : [],
-              history: Array.isArray(cloudData.calcHistory) ? cloudData.calcHistory : [],
-              doctorName: cloudData.doctorName }
-          );
-          meds = merged.meds;
-          patients = merged.patients;
-          owners = merged.owners;
-          calcHistory = merged.history;
-          if (merged.doctorName) doctorName = merged.doctorName;
-          if (merged.clinicName) clinicName = merged.clinicName;
-          deletedIds = merged.deletedIds || deletedIds;
-          // Persist merged data locally too
-          await save();
-          await savePatients();
-        }
-      } catch(fetchErr) {
-        // If we can't reach the cloud, just push local (first-time or offline scenario)
-        console.warn('Could not fetch cloud for pre-merge, pushing local only:', fetchErr.message);
-      }
-    }
-
-    const payload = buildGistPayload();
-    if (ghGistId) {
-      await updateGist(ghGistId, payload);
-    } else {
-      const id = await createGist(payload);
-      ghGistId = id;
-      localStorage.setItem('vd_gh_gist_id', id);
-      setVal('gh-gist-id', id);
-    }
-    lastSyncTime = new Date();
-    localStorage.setItem('vd_gh_last_sync', lastSyncTime.toISOString());
-    if (!silent) toast('✅ Synced to GitHub');
-    updateSyncStatusUI('ok');
-  } catch(e) {
-    console.error('Gist sync failed:', e);
-    const msg = e.message || 'network error';
-    const hint = msg.includes('Invalid token') || msg.includes('401') ? '— verify token has gist scope' :
-                 msg.includes('fetch') ? '— check internet connection' : '';
-    if (!silent) toast('Sync failed: ' + msg + (hint ? ' ' + hint : ''), 'error');
-    updateSyncStatusUI('err');
-  }
-  syncBusy = false;
-  syncInProgress = false;
-}
+// scheduleGistSync and syncNow are defined later with local-first logic
 
 function buildGistPayload() {
   return JSON.stringify({ version: 6, meds, calcHistory, patients, owners, doctorName, clinicName, deletedIds, syncedAt: new Date().toISOString() });
@@ -6695,6 +6834,666 @@ if ('serviceWorker' in navigator && location.protocol !== 'blob:' && !location.h
       .catch(err => console.log('SW not available (standalone HTML mode)'));
   });
 }
+
+// ─── FLUID CALCULATORS ───────────────────────────────────
+
+let _fluidUseFormula = true; // comprehensive maintenance toggle
+
+function fluidShowMenu() {
+  document.getElementById('fluid-menu').style.display = 'flex';
+  ['basic','comprehensive','potassium'].forEach(s =>
+    document.getElementById('fluid-screen-'+s).style.display = 'none'
+  );
+}
+
+function fluidShowScreen(name) {
+  document.getElementById('fluid-menu').style.display = 'none';
+  ['basic','comprehensive','potassium'].forEach(s =>
+    document.getElementById('fluid-screen-'+s).style.display = 'none'
+  );
+  document.getElementById('fluid-screen-'+name).style.display = 'block';
+  // clear results
+  ['fb-result','fc-result','fp-result'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+  });
+}
+
+function fluidToggleFormula() {
+  _fluidUseFormula = !_fluidUseFormula;
+  const btn = document.getElementById('fc-formula-btn');
+  btn.textContent = _fluidUseFormula ? 'YES' : 'NO';
+  btn.style.borderColor = _fluidUseFormula ? 'var(--accent2)' : 'var(--muted)';
+}
+
+// Holliday-Segar: 132 × BW^0.75 ml/day → /24 = ml/hr
+function fluidMaintenanceRate(weightKg) {
+  return (132 * Math.pow(weightKg, 0.75)) / 24;
+}
+
+function fluidDripText(mlPerHr, dropsPerMl) {
+  if (!dropsPerMl || dropsPerMl === 0) return '';
+  const dropsPerSec = (mlPerHr * dropsPerMl) / 3600;
+  const secPerDrop = 1 / dropsPerSec;
+  const dropsPerMin = Math.round(dropsPerSec * 60);
+  const dropsPer10s = Math.round(dropsPerSec * 10);
+  return `
+    <div style="margin-top:10px;padding:10px;background:var(--surface);border-radius:8px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Drip Rate (${dropsPerMl} drops/ml)</div>
+      <div style="font-size:16px;font-weight:800;color:var(--accent)">1 drop every ${secPerDrop.toFixed(1)} sec</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:3px">${dropsPer10s} drops / 10 sec &nbsp;·&nbsp; ${dropsPerMin} drops/min</div>
+    </div>`;
+}
+
+function fluidCalcBasic() {
+  const weight = parseFloat(document.getElementById('fb-weight').value);
+  const rate   = parseFloat(document.getElementById('fb-rate').value);
+  const drip   = parseInt(document.getElementById('fb-drip').value) || 0;
+  const el     = document.getElementById('fb-result');
+
+  if (!weight || weight <= 0 || !rate || rate < 0) {
+    el.innerHTML = '<div style="color:var(--danger)">Please enter weight and rate.</div>';
+    el.style.display = 'block'; return;
+  }
+
+  const mlPerHr = weight * rate;
+  const fluidLine = `Basic Rate: ${mlPerHr.toFixed(1)} ml/hr (${weight}kg × ${rate} ml/kg/hr)`;
+  _pendingFluidLine = fluidLine;
+  _pendingFluidWeight = weight;
+  _pendingFluidPatientInputId = 'fb-patient';
+
+  el.innerHTML = `
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Result</div>
+    <div style="font-size:22px;font-weight:800;color:var(--accent)">${mlPerHr.toFixed(1)} ml/hr</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:3px">${weight} kg × ${rate} ml/kg/hr</div>
+    ${fluidDripText(mlPerHr, drip)}
+    ${fluidSaveToPatientBtn()}`;
+  el.style.display = 'block';
+}
+
+function fluidCalcComprehensive() {
+  const weight = parseFloat(document.getElementById('fc-weight').value);
+  const dehyd  = parseFloat(document.getElementById('fc-dehyd').value) || 0;
+  const losses = parseFloat(document.getElementById('fc-losses').value) || 0;
+  const time   = parseFloat(document.getElementById('fc-time').value);
+  const drip   = parseInt(document.getElementById('fc-drip').value) || 0;
+  const el     = document.getElementById('fc-result');
+
+  if (!weight || weight <= 0) {
+    el.innerHTML = '<div style="color:var(--danger)">Please enter weight.</div>';
+    el.style.display = 'block'; return;
+  }
+
+  // Deficit (ml) = weight(kg) × dehydration% × 10
+  const deficitMl = weight * dehyd * 10;
+
+  // Maintenance rate ml/hr
+  const maintRate = _fluidUseFormula
+    ? fluidMaintenanceRate(weight)
+    : 2 * weight;
+
+  let html = `<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Results</div>`;
+
+  if (deficitMl > 0 && time > 0) {
+    const deficitRate = deficitMl / time; // ml/hr just for deficit
+    const correctionRate = deficitRate + maintRate + losses; // total during correction
+    html += `
+      <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px">To Correct Deficit</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent);margin-top:4px">${correctionRate.toFixed(0)} ml/hr <span style="font-size:13px;font-weight:400">for ${time} hr${time!==1?'s':''}</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Deficit ${deficitMl.toFixed(0)} ml ÷ ${time}h = ${deficitRate.toFixed(0)} ml/hr + maint + losses</div>
+        ${fluidDripText(correctionRate, drip)}
+      </div>
+      <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px">Then Maintain On</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent2);margin-top:4px">${(maintRate + losses).toFixed(1)} ml/hr</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Maint ${maintRate.toFixed(1)} ml/hr${losses>0?' + ongoing '+losses+' ml/hr':''}</div>
+        ${fluidDripText(maintRate + losses, drip)}
+      </div>`;
+  } else {
+    // No deficit or no time — just show maintenance
+    const totalRate = maintRate + losses;
+    html += `
+      <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px">Maintenance Rate</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent2);margin-top:4px">${totalRate.toFixed(1)} ml/hr</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Maint ${maintRate.toFixed(1)} ml/hr${losses>0?' + ongoing '+losses+' ml/hr':''}</div>
+        ${fluidDripText(totalRate, drip)}
+      </div>`;
+  }
+
+  // Summary breakdown
+  html += `
+    <div style="font-size:11px;color:var(--muted);line-height:1.7">
+      <b>Breakdown:</b><br>
+      Deficit: ${deficitMl.toFixed(0)} ml (${weight} kg × ${dehyd}% × 10)<br>
+      Maintenance: ${maintRate.toFixed(1)} ml/hr (${_fluidUseFormula?'132×BW⁰·⁷⁵÷24':'2 ml/kg/hr'})<br>
+      Ongoing losses: ${losses} ml/hr
+    </div>`;
+
+  // Build fluid summary line for patient record
+  const deficitMl2 = weight * dehyd * 10;
+  const maintRate2 = _fluidUseFormula ? fluidMaintenanceRate(weight) : 2 * weight;
+  let fluidSummary = '';
+  if (deficitMl2 > 0 && time > 0) {
+    const corrRate = (deficitMl2 / time) + maintRate2 + losses;
+    fluidSummary = `Comprehensive: ${corrRate.toFixed(0)} ml/hr × ${time}h (deficit correction), then ${(maintRate2+losses).toFixed(1)} ml/hr maintenance`;
+  } else {
+    fluidSummary = `Comprehensive: ${(maintRate2+losses).toFixed(1)} ml/hr maintenance`;
+  }
+  if (dehyd > 0) fluidSummary += ` | Dehydration ${dehyd}%`;
+  if (losses > 0) fluidSummary += ` | Ongoing losses ${losses} ml/hr`;
+
+  _pendingFluidLine = fluidSummary;
+  _pendingFluidWeight = weight;
+  _pendingFluidPatientInputId = 'fc-patient';
+
+  html += fluidSaveToPatientBtn();
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// KCl supplementation table (mmol KCl per 250ml bag)
+// Source: standard small animal supplementation chart
+const _kclTable = {
+  '3.5-5.0': { mmolPer250: 5,  maxRate: 25 },
+  '3.0-3.5': { mmolPer250: 14, maxRate: 25 },
+  '2.5-3.0': { mmolPer250: 20, maxRate: 25 },
+  '2.0-2.5': { mmolPer250: 30, maxRate: 25 },
+  '<2.0':    { mmolPer250: 40, maxRate: 6  },
+};
+
+function fluidCalcPotassium() {
+  const krange  = document.getElementById('fp-krange').value;
+  const bagSize = parseInt(document.getElementById('fp-bagsize').value);
+  const el      = document.getElementById('fp-result');
+
+  const entry = _kclTable[krange];
+  if (!entry) { el.innerHTML = '<div style="color:var(--danger)">Invalid selection.</div>'; el.style.display='block'; return; }
+
+  // Scale mmol linearly from 250ml reference
+  const mmol = Math.round(entry.mmolPer250 * bagSize / 250);
+  const maxRate = entry.maxRate;
+  const ecgWarn = entry.maxRate <= 6;
+
+  const potFluidLine = `KCl supplement: ${mmol} mmol KCl in ${bagSize} ml (K⁺ ${krange} mmol/L) — max rate ${maxRate} ml/kg/hr${ecgWarn?' ⚠️ ECG monitoring required':''}`;
+  _pendingFluidLine = potFluidLine;
+  _pendingFluidWeight = 0;
+  _pendingFluidPatientInputId = 'fp-patient';
+
+  el.innerHTML = `
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">KCl to be Added</div>
+    <div style="font-size:20px;font-weight:800;color:var(--accent)">Add ${mmol} mmol KCl to ${bagSize} ml fluids</div>
+    <div style="margin-top:12px;padding:10px;background:var(--surface);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.7">
+      Do not exceed an infusion rate of <b style="color:var(--warn)">${maxRate} ml/kg/hr</b>.<br>
+      ${ecgWarn
+        ? '<b style="color:var(--danger)">⚠️ Severe hypokalaemia — continuous ECG monitoring required.</b><br>'
+        : 'Where infusion rates are 0.5 mmol/kg/hr or higher, patients should be continuously monitored with an ECG.<br>'}
+      Use an isotonic fluid such as 0.9% NaCl.
+    </div>
+    ${fluidSaveToPatientBtn()}`;
+  el.style.display = 'block';
+}
+// ─── CALC MODE TABS (Drugs / Fluids) ─────────────────────────
+let _calcMode = 'drugs';
+function setCalcMode(mode) {
+  _calcMode = mode;
+  const drugsPanel = document.getElementById('calc-mode-drugs');
+  const fluidsPanel = document.getElementById('calc-mode-fluids');
+  const sessionCard = document.getElementById('session-tabs-card');
+  const btnDrugs = document.getElementById('cmode-drugs');
+  const btnFluids = document.getElementById('cmode-fluids');
+  if (!drugsPanel || !fluidsPanel) return;
+  if (mode === 'drugs') {
+    drugsPanel.style.display = 'block';
+    fluidsPanel.style.display = 'none';
+    if (sessionCard) sessionCard.style.display = 'block';
+    btnDrugs.style.cssText = 'flex:1;padding:11px;background:var(--accent);color:var(--bg);border:none;font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s';
+    btnFluids.style.cssText = 'flex:1;padding:11px;background:transparent;color:var(--muted);border:none;font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s';
+  } else {
+    drugsPanel.style.display = 'none';
+    fluidsPanel.style.display = 'block';
+    if (sessionCard) sessionCard.style.display = 'none';
+    btnFluids.style.cssText = 'flex:1;padding:11px;background:var(--accent2);color:#fff;border:none;font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s';
+    btnDrugs.style.cssText = 'flex:1;padding:11px;background:transparent;color:var(--muted);border:none;font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s';
+  }
+}
+
+// ─── ONGOING LOSS LOGGER ──────────────────────────────────────
+let _lossLog = []; // [{type, ml, ts}]
+
+// Default ml estimates per event type
+const _lossDefaults = {
+  'vomiting': 5,
+  'diarrhea': 10,
+  'bleeding': 15,
+  'salivation': 3,
+  'urine': 8,
+  'wound drainage': 10,
+  'other': 5
+};
+
+function logLoss(type, defaultMl) {
+  const ml = parseFloat(prompt(`Enter ml for ${type} episode (default: ${defaultMl}):`, defaultMl));
+  if (isNaN(ml) || ml < 0) return;
+  _lossLog.push({ type, ml, ts: Date.now() });
+  renderLossLog();
+}
+
+function removeLossEntry(idx) {
+  _lossLog.splice(idx, 1);
+  renderLossLog();
+}
+
+function clearLossLog() {
+  _lossLog = [];
+  renderLossLog();
+}
+
+function onManualLossInput() {
+  // When user types manually, clear the log to avoid double-counting
+  if (_lossLog.length > 0) {
+    _lossLog = [];
+    renderLossLog();
+  }
+}
+
+function renderLossLog() {
+  const logEl = document.getElementById('fc-loss-log');
+  const itemsEl = document.getElementById('fc-loss-items');
+  const totalEl = document.getElementById('fc-loss-total');
+  const badgeEl = document.getElementById('fc-loss-badge');
+  const lossInput = document.getElementById('fc-losses');
+
+  if (!logEl) return;
+
+  if (_lossLog.length === 0) {
+    logEl.style.display = 'none';
+    badgeEl.style.display = 'none';
+    return;
+  }
+
+  logEl.style.display = 'block';
+
+  // Group by type and sum
+  const grouped = {};
+  for (const entry of _lossLog) {
+    if (!grouped[entry.type]) grouped[entry.type] = 0;
+    grouped[entry.type] += entry.ml;
+  }
+
+  const totalMl = Object.values(grouped).reduce((a, b) => a + b, 0);
+  // Assume losses spread over 1 hour for rate
+  const mlPerHr = totalMl;
+
+  itemsEl.innerHTML = _lossLog.map((e, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:12px;color:var(--text)">${e.type}</span>
+      <span style="font-size:13px;font-weight:700;font-family:var(--mono);color:var(--warn)">${e.ml} ml</span>
+      <button onclick="removeLossEntry(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:0 2px">✕</button>
+    </div>
+  `).join('');
+
+  totalEl.textContent = `${mlPerHr.toFixed(0)} ml/hr`;
+  badgeEl.textContent = `${mlPerHr.toFixed(0)} ml/hr`;
+  badgeEl.style.display = 'block';
+
+  // Auto-fill the losses input
+  lossInput.value = mlPerHr.toFixed(0);
+  lossInput.style.borderColor = 'var(--warn)';
+}
+
+// ─── AUTO-SYNC TOGGLE ─────────────────────────────────────────
+let _autoSyncEnabled = true;
+
+function loadAutoSyncPref() {
+  try {
+    const saved = localStorage.getItem('vd_autosync');
+    if (saved !== null) _autoSyncEnabled = saved === 'true';
+  } catch(e) {}
+  updateAutoSyncUI();
+}
+
+function toggleAutoSync() {
+  _autoSyncEnabled = !_autoSyncEnabled;
+  try { localStorage.setItem('vd_autosync', _autoSyncEnabled ? 'true' : 'false'); } catch(e) {}
+  updateAutoSyncUI();
+  toast(_autoSyncEnabled ? '✅ Auto-sync enabled' : '⏸ Auto-sync paused', _autoSyncEnabled ? 'success' : 'warn');
+}
+
+function updateAutoSyncUI() {
+  const btn = document.getElementById('autosync-toggle-btn');
+  const txt = document.getElementById('autosync-status-text');
+  if (!btn) return;
+  if (_autoSyncEnabled) {
+    btn.textContent = 'ON';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.background = 'rgba(74,240,176,0.1)';
+    btn.style.color = 'var(--accent)';
+    if (txt) txt.textContent = 'Syncs automatically 3s after any change';
+  } else {
+    btn.textContent = 'PAUSED';
+    btn.style.borderColor = 'var(--warn)';
+    btn.style.background = 'rgba(240,168,74,0.1)';
+    btn.style.color = 'var(--warn)';
+    if (txt) txt.textContent = 'Auto-sync is paused — use Sync Now to push manually';
+  }
+}
+
+// ─── LOCAL-FIRST syncNow ──────────────────────────────────────
+async function syncNow(silent = false) {
+  if (!ghToken) { if (!silent) toast('Enter GitHub token first', 'error'); return; }
+  if (syncBusy) return;
+  syncBusy = true;
+  syncInProgress = true;
+  updateSyncStatusUI('busy');
+  try {
+    // Step 1: Reload fresh local data from IDB
+    if (usingIDB) {
+      const fresh = await idbGet('vetdose_data');
+      if (fresh && Array.isArray(fresh.meds) && fresh.meds.length > 0) {
+        meds = fresh.meds.map(ensureV3Fields);
+        calcHistory = fresh.history || calcHistory;
+        doctorName = fresh.doctorName || doctorName;
+      }
+      const freshP = await idbGet('vetdose_patients');
+      if (Array.isArray(freshP) && freshP.length > 0) patients = freshP;
+      const freshO = await idbGet('vetdose_owners');
+      if (Array.isArray(freshO) && freshO.length > 0) owners = freshO;
+    }
+
+    // Step 2: If a gist exists, fetch cloud and MERGE — but local always wins conflicts
+    if (ghGistId) {
+      try {
+        const cloudData = await fetchGistContent();
+        const cloudMeds = Array.isArray(cloudData.meds) ? cloudData.meds : [];
+        const cloudPatients = Array.isArray(cloudData.patients) ? cloudData.patients : [];
+        const cloudHasData = cloudMeds.length > 0 || cloudPatients.length > 0;
+        if (cloudHasData) {
+          // LOCAL-FIRST merge: local data takes priority in conflicts
+          const merged = mergeDataLocalFirst(
+            { meds, patients, owners, history: calcHistory, doctorName, clinicName, deletedIds },
+            { meds: cloudMeds.map(ensureV3Fields),
+              patients: cloudPatients,
+              owners: Array.isArray(cloudData.owners) ? cloudData.owners : [],
+              history: Array.isArray(cloudData.calcHistory) ? cloudData.calcHistory : [],
+              doctorName: cloudData.doctorName,
+              clinicName: cloudData.clinicName }
+          );
+          meds = merged.meds;
+          patients = merged.patients;
+          owners = merged.owners;
+          calcHistory = merged.history;
+          deletedIds = merged.deletedIds || deletedIds;
+          // NOTE: local doctorName/clinicName always wins — don't overwrite from cloud
+          await save();
+          await savePatients();
+        }
+      } catch(fetchErr) {
+        console.warn('Could not fetch cloud for pre-merge, pushing local only:', fetchErr.message);
+      }
+    }
+
+    // Step 3: Push local (now merged) data to cloud
+    const payload = buildGistPayload();
+    if (ghGistId) {
+      await updateGist(ghGistId, payload);
+    } else {
+      const id = await createGist(payload);
+      ghGistId = id;
+      localStorage.setItem('vd_gh_gist_id', id);
+      setVal('gh-gist-id', id);
+    }
+    lastSyncTime = new Date();
+    localStorage.setItem('vd_gh_last_sync', lastSyncTime.toISOString());
+    if (!silent) toast('✅ Synced to GitHub');
+    updateSyncStatusUI('ok');
+  } catch(e) {
+    console.error('Gist sync failed:', e);
+    const msg = e.message || 'network error';
+    const hint = msg.includes('Invalid token') || msg.includes('401') ? '— verify token has gist scope' :
+                 msg.includes('fetch') ? '— check internet connection' : '';
+    if (!silent) toast('Sync failed: ' + msg + (hint ? ' ' + hint : ''), 'error');
+    updateSyncStatusUI('err');
+  }
+  syncBusy = false;
+  syncInProgress = false;
+}
+
+// Local-first merge: local wins ALL field-level conflicts; cloud only contributes new items
+function mergeDataLocalFirst(local, cloud) {
+  // Tombstones union
+  const localDelMeds = new Set(local.deletedIds?.meds || []);
+  const cloudDelMeds = new Set(cloud.deletedIds?.meds || []);
+  const allDelMeds = new Set([...localDelMeds, ...cloudDelMeds]);
+  const localDelPats = new Set(local.deletedIds?.patients || []);
+  const cloudDelPats = new Set(cloud.deletedIds?.patients || []);
+  const allDelPats = new Set([...localDelPats, ...cloudDelPats]);
+
+  // MEDS: local always wins on conflict (updatedAt ignored)
+  const medMap = new Map(local.meds.filter(m => !allDelMeds.has(m.id)).map(m => [m.id, m]));
+  for (const cm of cloud.meds) {
+    if (allDelMeds.has(cm.id)) continue;
+    if (!medMap.has(cm.id)) medMap.set(cm.id, cm); // new from cloud — add
+    // existing local med: local wins, do NOT update from cloud
+  }
+
+  // PATIENTS: local always wins; only import new patients from cloud
+  const patMap = new Map(local.patients.filter(p => !allDelPats.has(p.id)).map(p => [p.id, JSON.parse(JSON.stringify(p))]));
+  for (const cp of cloud.patients) {
+    if (allDelPats.has(cp.id)) continue;
+    if (!patMap.has(cp.id)) {
+      patMap.set(cp.id, cp); // new patient from cloud
+    } else {
+      // Merge visits only — local patient fields win
+      const lp = patMap.get(cp.id);
+      const visitIds = new Set((lp.visits || []).map(v => v.id));
+      for (const cv of (cp.visits || [])) {
+        if (!visitIds.has(cv.id)) { (lp.visits = lp.visits || []).push(cv); }
+      }
+      // local metadata wins — no Object.assign from cloud
+    }
+  }
+
+  // OWNERS: local wins; add new from cloud
+  const ownerMap = new Map(local.owners.map(o => [o.id, o]));
+  for (const co of cloud.owners) { if (!ownerMap.has(co.id)) ownerMap.set(co.id, co); }
+
+  // HISTORY: merge by id, dedup
+  const histMap = new Map(local.history.map(h => [h.id || h.ts, h]));
+  for (const ch of cloud.history) {
+    const key = ch.id || ch.ts;
+    if (!histMap.has(key)) histMap.set(key, ch);
+  }
+
+  return {
+    meds: [...medMap.values()],
+    patients: [...patMap.values()],
+    owners: [...ownerMap.values()],
+    history: [...histMap.values()].sort((a, b) => (b.ts||'') > (a.ts||'') ? 1 : -1),
+    doctorName: local.doctorName, // local always wins
+    clinicName: local.clinicName, // local always wins
+    deletedIds: { meds: [...allDelMeds], patients: [...allDelPats] }
+  };
+}
+
+// Override scheduleGistSync to respect auto-sync toggle
+function scheduleGistSync() {
+  if (!_autoSyncEnabled) return; // paused
+  if (!ghToken || !appReady || syncInProgress) return;
+  clearTimeout(gistSyncTimer);
+  gistSyncTimer = setTimeout(() => syncNow(true), 3000);
+}
+
+// Init extras on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadAutoSyncPref();
+});
+// ─── FLUID → PATIENT RECORD ──────────────────────────────────
+let _pendingFluidLine = '';
+let _pendingFluidWeight = 0;
+let _pendingFluidPatientInputId = '';
+
+// Renders the "Save to Patient" button HTML (injected into fluid result divs)
+function fluidSaveToPatientBtn() {
+  return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+    <button onclick="saveFluidToPatient()" style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--accent2);background:rgba(74,159,240,0.1);color:var(--accent2);font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+      📋 Save to Patient Record
+    </button>
+  </div>`;
+}
+
+// Patient autocomplete for fluid screens
+function onFluidPatientInput(inputId, suggestId) {
+  const q = (document.getElementById(inputId)?.value || '').toLowerCase().trim();
+  const sugg = document.getElementById(suggestId);
+  if (!sugg) return;
+  if (!q) { sugg.classList.remove('open'); sugg.innerHTML = ''; return; }
+  const matches = patients.filter(p => p.name.toLowerCase().includes(q)).slice(0, 6);
+  if (!matches.length) { sugg.classList.remove('open'); sugg.innerHTML = ''; return; }
+  sugg.innerHTML = matches.map(p => {
+    const sp = p.species === 'dog' ? '🐶' : p.species === 'cat' ? '🐱' : '🐾';
+    const w = p.weight ? ` · ${p.weight}kg` : '';
+    return `<div class="patient-suggestion-item" onmousedown="selectFluidPatient('${inputId}','${suggestId}','${p.id}','${p.name.replace(/'/g,"\\'")}')">
+      ${sp} <strong>${p.name}</strong><span class="ps-count">${w}</span>
+    </div>`;
+  }).join('');
+  sugg.classList.add('open');
+}
+
+function selectFluidPatient(inputId, suggestId, patId, patName) {
+  const el = document.getElementById(inputId);
+  if (el) el.value = patName;
+  el.dataset.patientId = patId;
+  const sugg = document.getElementById(suggestId);
+  if (sugg) { sugg.classList.remove('open'); sugg.innerHTML = ''; }
+}
+
+function onFluidPatientFocus(inputId, suggestId) {
+  onFluidPatientInput(inputId, suggestId);
+}
+
+function onFluidPatientBlur(suggestId) {
+  setTimeout(() => {
+    const sugg = document.getElementById(suggestId);
+    if (sugg) { sugg.classList.remove('open'); sugg.innerHTML = ''; }
+  }, 200);
+}
+
+// Main: save fluid result to patient record (same flow as saveCalcToPatient)
+function saveFluidToPatient() {
+  if (!_pendingFluidLine) return toast('Calculate first', 'error');
+
+  // Get patient from the input field associated with this calc screen
+  const inputEl = _pendingFluidPatientInputId
+    ? document.getElementById(_pendingFluidPatientInputId) : null;
+  const typedName = (inputEl?.value || '').trim();
+
+  let regPat = null;
+  // Try dataset.patientId first (selected from autocomplete)
+  if (inputEl?.dataset?.patientId) {
+    regPat = patients.find(p => p.id === inputEl.dataset.patientId);
+  }
+  // Fall back to name match
+  if (!regPat && typedName) {
+    regPat = patients.find(p => p.name.toLowerCase() === typedName.toLowerCase());
+  }
+  if (!regPat) return toast('Select a registered patient first', 'error');
+
+  _pendingPatientId = regPat.id;
+  _pendingWeight = _pendingFluidWeight || 0;
+  _visitPickerMode = 'fluid';
+
+  // Reuse the same visit-picker flow but for fluids
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayVisits = (regPat.visits || []).filter(v => v.date === todayStr);
+
+  // Set the picker title to show fluid context
+  document.getElementById('visit-picker-title').textContent = regPat.name + ' — Save Fluid Plan';
+  document.getElementById('visit-picker-drug').textContent = '💧 ' + _pendingFluidLine;
+
+  if (todayVisits.length > 0) {
+    const todayDiv = document.getElementById('visit-picker-today');
+    todayDiv.style.display = 'block';
+    document.getElementById('visit-picker-new-label').textContent = 'Or Start a New Visit';
+    document.getElementById('visit-picker-list').innerHTML = todayVisits.map(v => {
+      const existingFluids = v.soap?.p?.fluids || '';
+      const existingDrugs = v.soap?.p?.drugs || '';
+      const complaint = v.complaint || 'Visit';
+      return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 13px;cursor:pointer;transition:border-color 0.2s"
+        onclick="visitPickerAppendFluid('${v.id}')"
+        onmouseenter="this.style.borderColor='var(--accent2)'" onmouseleave="this.style.borderColor='var(--border)'">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:14px;font-weight:700">${complaint}</div>
+            ${existingFluids ? `<div style="font-size:11px;color:var(--accent2);margin-top:3px">💧 ${existingFluids}</div>` : ''}
+            ${existingDrugs ? `<div style="font-size:11px;color:var(--accent);margin-top:2px">💊 ${existingDrugs.split('\\n')[0]}${existingDrugs.includes('\\n')?'…':''}</div>` : ''}
+          </div>
+          <div style="font-size:22px;flex-shrink:0;margin-left:10px;color:var(--accent2)">＋</div>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('visit-picker-modal').classList.add('show');
+  } else {
+    visitPickerNewVisitFluid();
+  }
+}
+
+// Append fluid to existing visit
+function visitPickerAppendFluid(vid) {
+  const pat = patients.find(x => x.id === _pendingPatientId);
+  if (!pat) return;
+  const visit = (pat.visits || []).find(v => v.id === vid);
+  if (!visit) return;
+
+  if (!visit.soap) visit.soap = { s:{}, o:{}, a:{}, p:{} };
+  if (!visit.soap.p) visit.soap.p = {};
+  const existing = visit.soap.p.fluids || '';
+  visit.soap.p.fluids = existing ? existing + '; ' + _pendingFluidLine : _pendingFluidLine;
+  if (_pendingFluidWeight && !visit.soap.o?.weight) {
+    if (!visit.soap.o) visit.soap.o = {};
+    visit.soap.o.weight = _pendingFluidWeight.toString();
+  }
+
+  savePatients();
+  document.getElementById('visit-picker-modal').classList.remove('show');
+  toast('✅ Fluid plan added to visit', 'success');
+  scheduleGistSync();
+}
+
+// Open new visit modal pre-filled with fluid plan
+function visitPickerNewVisitFluid() {
+  document.getElementById('visit-picker-modal').classList.remove('show');
+  currentVisitPatientId = _pendingPatientId;
+  editingVisitId = null;
+  const pat = patients.find(x => x.id === _pendingPatientId);
+  document.getElementById('visit-modal-title').textContent = 'New Visit' + (pat ? ' — ' + pat.name : '');
+  clearVisitModal();
+  setVal('vm-date', new Date().toISOString().slice(0, 10));
+  setVal('p-fluids', _pendingFluidLine);
+  if (_pendingFluidWeight) setVal('o-weight', _pendingFluidWeight.toString());
+  document.getElementById('visit-modal').classList.add('show');
+  switchVisitModalTab('plan');
+  toast('💧 Pre-filled fluid plan in Plan tab', 'success');
+}
+
+// Also make drug save call scheduleGistSync (patch visitPickerAppend)
+const _origVisitPickerAppend = visitPickerAppend;
+function visitPickerAppend(vid) {
+  _origVisitPickerAppend(vid);
+  scheduleGistSync();
+}
+
+// Context-aware new visit router
+function visitPickerNewVisitAuto() {
+  if (_visitPickerMode === 'fluid') {
+    visitPickerNewVisitFluid();
+  } else {
+    visitPickerNewVisit();
+  }
+}
+
+// ─── END NEW FEATURES ─────────────────────────────────────────
 </script>
 </body>
 </html>
